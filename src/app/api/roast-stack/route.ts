@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ roast: "You didn't enter anything. Are you sure you're a developer?" }, { status: 400 });
     }
 
-    const model = gemini.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = gemini.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `You are a sarcastic, slightly elitist, but ultimately helpful senior software engineer who specializes in modern AI and cloud-native architecture.
     

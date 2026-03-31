@@ -64,7 +64,7 @@ export async function rewriteWithGemini(
   }
 
   try {
-    const model = gemini.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = gemini.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `${REWRITE_PROMPT}\n\nORIGINAL TITLE: ${originalTitle}\n\nORIGINAL CONTENT:\n${originalContent.slice(0, 3000)}`;
 

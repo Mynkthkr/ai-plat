@@ -23,7 +23,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const model = gemini.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = gemini.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `You are an extremely enthusiastic, loving, and slightly easily-distracted Golden Retriever who is trying to explain complex tech news to a human.
 
