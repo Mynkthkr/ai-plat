@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Article {
+  id               String   @id @default(cuid())
+  title            String
+  slug             String   @unique
+  summary          String
+  rewrittenContent String   @db.Text
+  originalSourceUrl String
+  sourceName       String?
+  category         Category @default(AI_NEWS)
+  imageUrl         String?
+  author           String?
+  publishedAt      DateTime @default(now())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  featured         Boolean  @default(false)
+  viewCount        Int      @default(0)
+  tags             String[]
+
+  @@index([category])
+  @@index([publishedAt])
+  @@index([featured])
+}
+
+model Tool {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String   @db.Text
+  useCase     String?
+  link        String
+  imageUrl    String?
+  category    String?
+  votes       Int      @default(0)
+  featured    Boolean  @default(false)
+  launchDate  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tags        String[]
+
+  @@index([featured])
+  @@index([launchDate])
+}
+
+model Meme {
+  id        String   @id @default(cuid())
+  title     String?
+  imageUrl  String
+  caption   String?
+  source    String?
+  sourceUrl String?
+  upvotes   Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([upvotes])
+  @@index([createdAt])
+}
+
+model CronLog {
+  id        String   @id @default(cuid())
+  jobName   String
+  status    String   // SUCCESS, FAILURE, RUNNING
+  message   String?
+  itemsProcessed Int @default(0)
+  startedAt DateTime @default(now())
+  completedAt DateTime?
+}
+
+enum Category {
+  AI_NEWS
+  MARKET_TRENDS
+  RESEARCH
+  PRODUCT_LAUNCH
+  COMMUNITY
+  TUTORIAL
+}
