@@ -3,6 +3,8 @@
  *
  * Uses Google Gemini (free tier) to rewrite scraped content
  * into FULL, comprehensive, engaging articles (not summaries).
+ *
+ * Includes retry with backoff to handle rate limits gracefully.
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -54,6 +56,50 @@ OUTPUT FORMAT (respond ONLY with valid JSON, no markdown code blocks):
   "realityCheck": "A short, grounded 1-sentence reality check separating the hype from the actual utility."
 }`;
 
+/**
+ * Sleep helper
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+/**
+ * Extract retry delay from a 429 error (if available)
+ */
+function getRetryDelay(error: unknown): number {
+  try {
+    // The Gemini SDK includes retryDelay in errorDetails
+    const err = error as { errorDetails?: Array<{ retryDelay?: string }> };
+    if (err.errorDetails) {
+      for (const detail of err.errorDetails) {
+        if (detail.retryDelay) {
+          const seconds = parseInt(detail.retryDelay.replace('s', ''), 10);
+          if (!isNaN(seconds)) return (seconds + 2) * 1000; // add 2s buffer
+        }
+      }
+    }
+  } catch {
+    // ignore parsing errors
+  }
+  return 25000; // default 25s if we can't parse
+}
+
+/**
+ * Check if error is a rate limit (429) error
+ */
+function isRateLimitError(error: unknown): boolean {
+  const err = error as { status?: number; message?: string };
+  return err.status === 429 || (err.message || '').includes('429');
+}
+
+/**
+ * Check if error indicates daily quota is fully exhausted
+ */
+function isDailyQuotaExhausted(error: unknown): boolean {
+  const msg = String(error);
+  return msg.includes('PerDayPerProject') && msg.includes('limit: 0');
+}
+
 export async function rewriteWithGemini(
   originalTitle: string,
   originalContent: string
@@ -63,48 +109,68 @@ export async function rewriteWithGemini(
     return null;
   }
 
-  try {
-    const model = gemini.getGenerativeModel({ model: 'gemini-2.0-flash' });
+  const MAX_RETRIES = 3;
 
-    const prompt = `${REWRITE_PROMPT}\n\nORIGINAL TITLE: ${originalTitle}\n\nORIGINAL CONTENT:\n${originalContent.slice(0, 3000)}`;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const model = gemini.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+      const prompt = `${REWRITE_PROMPT}\n\nORIGINAL TITLE: ${originalTitle}\n\nORIGINAL CONTENT:\n${originalContent.slice(0, 3000)}`;
 
-    // Extract JSON from response (Gemini may wrap in markdown code blocks)
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      console.error('No JSON found in Gemini response');
+      const result = await model.generateContent(prompt);
+      const text = result.response.text();
+
+      // Extract JSON from response (Gemini may wrap in markdown code blocks)
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        console.error('No JSON found in Gemini response');
+        return null;
+      }
+
+      const parsed = JSON.parse(jsonMatch[0]) as RewrittenArticle;
+
+      // Validate required fields
+      if (!parsed.title || !parsed.summary || !parsed.fullContent) {
+        console.error('Missing required fields in Gemini response');
+        return null;
+      }
+
+      // Ensure slug exists
+      if (!parsed.slug) {
+        parsed.slug = parsed.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '')
+          .slice(0, 80);
+      }
+
+      // Ensure content fallback
+      if (!parsed.content) {
+        parsed.content = parsed.summary;
+      }
+
+      return parsed;
+    } catch (error) {
+      // If daily quota is fully gone, stop trying immediately
+      if (isDailyQuotaExhausted(error)) {
+        console.error('   🚫 Daily Gemini quota exhausted. Stopping all rewrites.');
+        throw new Error('DAILY_QUOTA_EXHAUSTED');
+      }
+
+      // If rate limited, wait and retry
+      if (isRateLimitError(error) && attempt < MAX_RETRIES) {
+        const delay = getRetryDelay(error);
+        console.log(`   ⏳ Rate limited. Waiting ${Math.round(delay / 1000)}s before retry (attempt ${attempt}/${MAX_RETRIES})...`);
+        await sleep(delay);
+        continue;
+      }
+
+      console.error('Gemini rewrite error:', error);
       return null;
     }
-
-    const parsed = JSON.parse(jsonMatch[0]) as RewrittenArticle;
-
-    // Validate required fields
-    if (!parsed.title || !parsed.summary || !parsed.fullContent) {
-      console.error('Missing required fields in Gemini response');
-      return null;
-    }
-
-    // Ensure slug exists
-    if (!parsed.slug) {
-      parsed.slug = parsed.title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '')
-        .slice(0, 80);
-    }
-
-    // Ensure content fallback
-    if (!parsed.content) {
-      parsed.content = parsed.summary;
-    }
-
-    return parsed;
-  } catch (error) {
-    console.error('Gemini rewrite error:', error);
-    return null;
   }
+
+  return null;
 }
 
 /**

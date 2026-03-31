@@ -22,15 +22,26 @@ const supabase = createClient(
 
 /**
  * Process RSS articles → Gemini rewrite → Save to Supabase
+ * Caps at MAX_ARTICLES_PER_RUN to stay within Gemini free tier daily limits
  */
+const MAX_ARTICLES_PER_RUN = 10;
+
 export async function processNewsArticles(): Promise<number> {
   console.log('📰 Fetching AI news from RSS feeds...');
   const rawArticles = await fetchAINewsRSS();
   console.log(`   Found ${rawArticles.length} fresh articles (< 24h)`);
+  console.log(`   Processing up to ${MAX_ARTICLES_PER_RUN} articles (free tier limit)`);
 
   let processed = 0;
+  let attempted = 0;
 
   for (const raw of rawArticles) {
+    // Stop if we've hit our per-run cap
+    if (processed >= MAX_ARTICLES_PER_RUN) {
+      console.log(`   🛑 Reached max articles per run (${MAX_ARTICLES_PER_RUN}). Stopping.`);
+      break;
+    }
+
     try {
       // Skip if we already have this source URL
       const { data: existing } = await supabase
@@ -50,9 +61,22 @@ export async function processNewsArticles(): Promise<number> {
         continue;
       }
 
+      attempted++;
+
       // AI Rewrite via Gemini
-      console.log(`   ✍️ Rewriting: ${raw.title.slice(0, 50)}...`);
-      const rewritten = await rewriteArticle(raw.title, raw.content);
+      console.log(`   ✍️ Rewriting [${attempted}]: ${raw.title.slice(0, 50)}...`);
+
+      let rewritten;
+      try {
+        rewritten = await rewriteArticle(raw.title, raw.content);
+      } catch (error) {
+        // Daily quota exhausted — stop processing entirely
+        if (error instanceof Error && error.message === 'DAILY_QUOTA_EXHAUSTED') {
+          console.log('   🚫 Gemini daily quota exhausted. Saving what we have and stopping.');
+          break;
+        }
+        throw error;
+      }
 
       if (!rewritten) {
         console.log(`   ❌ Rewrite failed: ${raw.title.slice(0, 50)}...`);
@@ -82,10 +106,10 @@ export async function processNewsArticles(): Promise<number> {
       }
 
       processed++;
-      console.log(`   ✅ Saved: ${rewritten.title.slice(0, 50)}...`);
+      console.log(`   ✅ Saved [${processed}/${MAX_ARTICLES_PER_RUN}]: ${rewritten.title.slice(0, 50)}...`);
 
-      // Rate limiting — 3s between Gemini calls (respect free tier)
-      await new Promise((r) => setTimeout(r, 3000));
+      // Rate limiting — 5s between Gemini calls (respect free tier: 15 RPM)
+      await new Promise((r) => setTimeout(r, 5000));
     } catch (error) {
       console.error(`   ❌ Error processing article:`, error);
     }
