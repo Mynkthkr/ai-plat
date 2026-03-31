@@ -85,16 +85,30 @@ export default function ArticlePage() {
     if (!isDogMode && !dogExplanation) {
       setIsDogLoading(true);
       try {
-        const fullContent = (article as any)?.full_rewritten_content || (article as any)?.rewritten_content || '';
+        // Robust text extraction — fall through all possible content fields
+        const articleText =
+          article?.full_rewritten_content ||
+          article?.rewritten_content ||
+          article?.summary ||
+          article?.title ||
+          '';
+
+        if (!articleText || articleText.trim().length < 10) {
+          setDogExplanation("*tilts head* There's nothing to sniff here! WOOF!");
+          setIsDogLoading(false);
+          setIsDogMode(true);
+          return;
+        }
+
         const res = await fetch('/api/dog-explain', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: fullContent }),
+          body: JSON.stringify({ text: articleText }),
         });
         const data = await res.json();
         setDogExplanation(data.explanation);
       } catch (err) {
-        setDogExplanation("*sad whimper* I couldn't fetch the explanation right now.");
+        setDogExplanation("*sad whimper* I couldn't fetch the explanation right now. WOOF!");
       }
       setIsDogLoading(false);
     }

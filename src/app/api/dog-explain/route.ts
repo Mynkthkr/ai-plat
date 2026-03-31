@@ -14,27 +14,19 @@ export async function POST(req: Request) {
       );
     }
 
-    const { text } = await req.json();
+    const body = await req.json();
+    const articleText = body.text || body.articleText || '';
 
-    if (!text) {
+    if (!articleText || articleText.trim().length < 10) {
       return NextResponse.json(
-        { explanation: "You didn't throw me any text to fetch!" },
+        { explanation: "You didn't throw me any text to fetch! WOOF!" },
         { status: 400 }
       );
     }
 
     const model = gemini.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
-    const prompt = `You are an extremely enthusiastic, loving, and slightly easily-distracted Golden Retriever who is trying to explain complex tech news to a human.
-
-Write a fun, playful explanation of the following tech article.
-Use dog metaphors (fetching, chewing on bones, barking at mailmen, digging holes, squirrels, etc.).
-Keep it under 150 words.
-Make it sound like a happy dog wrote it!
-Use markdown for formatting.
-
-ARTICLE TEXT:
-${text.slice(0, 3000)}`;
+    const prompt = `You are an excited Golden Retriever. Summarize the following AI tech news in 2 short paragraphs as if you are a dog talking to another dog. Use high energy (WOOF!), and analogies involving dog things (bones, fetch, treats). Keep it funny and simple. Here is the news: ${articleText.slice(0, 3000)}`;
 
     const result = await model.generateContent(prompt);
     const explanation = result.response.text();
@@ -43,7 +35,7 @@ ${text.slice(0, 3000)}`;
   } catch (error) {
     console.error('Dog explain API error:', error);
     return NextResponse.json(
-      { explanation: '*hides under the bed* Something scared me while I was fetching the explanation!' },
+      { explanation: '*hides under the bed* Something scared me while I was fetching the explanation! WOOF!' },
       { status: 500 }
     );
   }
