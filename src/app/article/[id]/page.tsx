@@ -394,7 +394,7 @@ export default function ArticlePage() {
                 Source: {article.source_name}
               </span>
             )}
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <button
                 onClick={handleShare}
                 style={{
@@ -415,29 +415,42 @@ export default function ArticlePage() {
                 <Share2 size={13} />
                 Share
               </button>
-              <a
-                href={article.original_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 14px',
-                  background: 'var(--bg-elevated)',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
-                  borderRadius: 'var(--radius-sm)',
-                  color: 'var(--text-secondary)',
-                  cursor: 'pointer',
-                  fontSize: '0.75rem',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  textDecoration: 'none',
-                  transition: 'all 200ms ease',
-                }}
-              >
-                <ExternalLink size={13} />
-                Original
-              </a>
+              {/* Only show Original Source for real pipeline articles (not demo) */}
+              {article.original_url && !article.id.startsWith('demo-') && (
+                <a
+                  href={article.original_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 14px',
+                    background: 'rgba(0, 240, 255, 0.06)',
+                    border: '1px solid rgba(0, 240, 255, 0.2)',
+                    borderRadius: 'var(--radius-sm)',
+                    color: 'var(--neon-cyan)',
+                    cursor: 'pointer',
+                    fontSize: '0.75rem',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    textDecoration: 'none',
+                    transition: 'all 200ms ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(0, 240, 255, 0.12)';
+                    e.currentTarget.style.borderColor = 'rgba(0, 240, 255, 0.4)';
+                    e.currentTarget.style.boxShadow = '0 0 15px rgba(0, 240, 255, 0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(0, 240, 255, 0.06)';
+                    e.currentTarget.style.borderColor = 'rgba(0, 240, 255, 0.2)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <ExternalLink size={13} />
+                  Original Source ↗
+                </a>
+              )}
               <button
                 onClick={handleDogToggle}
                 style={{
