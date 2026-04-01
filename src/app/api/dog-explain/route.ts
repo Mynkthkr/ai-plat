@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const model = gemini.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `You are an excited Golden Retriever. Summarize the following AI tech news in 2 short paragraphs as if you are a dog talking to another dog. Use high energy (WOOF!), and analogies involving dog things (bones, fetch, treats). Keep it funny and simple. Here is the news: ${articleText.slice(0, 3000)}`;
 

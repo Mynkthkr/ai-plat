@@ -123,12 +123,14 @@ export async function processNewsArticles(): Promise<number> {
  */
 export async function sendDailyNewsletter(): Promise<number> {
   const resendApiKey = process.env.RESEND_API_KEY;
-  if (!resendApiKey) {
-    console.log('📧 RESEND_API_KEY not configured, skipping newsletter');
-    return 0;
-  }
+  const isMockMode = !resendApiKey;
 
-  console.log('📧 Preparing daily newsletter...');
+  if (isMockMode) {
+    console.log('📧 RESEND_API_KEY not configured. Running in MOCK MODE (no emails actually sent).');
+    console.log('   Add a Resend API key to .env to enable real email sending.');
+  } else {
+    console.log('📧 Preparing daily newsletter for real delivery...');
+  }
 
   // Get the top article from today
   const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
@@ -156,7 +158,7 @@ export async function sendDailyNewsletter(): Promise<number> {
     return 0;
   }
 
-  console.log(`   📬 Sending to ${subscribers.length} subscribers...`);
+  console.log(`   📬 ${isMockMode ? 'MOCK sending' : 'Sending'} to ${subscribers.length} active subscribers...`);
 
   let sent = 0;
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'AI Pulse <onboarding@resend.dev>';
@@ -164,6 +166,13 @@ export async function sendDailyNewsletter(): Promise<number> {
   // Resend free tier: Send one by one (batch not available in free tier)
   for (const sub of subscribers) {
     try {
+      if (isMockMode) {
+        console.log(`      → [MOCK] Sent daily brief to ${sub.email}`);
+        sent++;
+        await new Promise((r) => setTimeout(r, 50)); // tiny mock delay
+        continue;
+      }
+
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -179,6 +188,7 @@ export async function sendDailyNewsletter(): Promise<number> {
       });
 
       if (response.ok) {
+        console.log(`      → Sent to ${sub.email}`);
         sent++;
       } else {
         const err = await response.text();
@@ -192,7 +202,7 @@ export async function sendDailyNewsletter(): Promise<number> {
     }
   }
 
-  console.log(`   ✅ Sent ${sent}/${subscribers.length} emails`);
+  console.log(`   ✅ Successfully ${isMockMode ? 'MOCK ' : ''}sent ${sent}/${subscribers.length} emails`);
   return sent;
 }
 

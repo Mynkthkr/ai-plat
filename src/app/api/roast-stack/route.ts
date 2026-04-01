@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ roast: "You didn't enter anything. Are you sure you're a developer?" }, { status: 400 });
     }
 
-    const model = gemini.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `You are a sarcastic, elite senior 10x developer. A user has submitted their tech stack: ${userTechStack}. I want you to brutally and sarcastically roast THIS SPECIFIC tech stack. Mention the exact technologies they listed and why they are outdated, overcomplicated, or funny. Suggest a modern AI alternative at the end. Keep it under 4 sentences. DO NOT give a generic reply.`;
 
