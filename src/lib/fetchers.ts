@@ -26,16 +26,16 @@ export interface RSSArticle {
 // Free RSS feeds for AI news
 const RSS_FEEDS = [
   {
-    url: 'https://news.google.com/rss/search?q=artificial+intelligence&hl=en-US&gl=US&ceid=US:en',
-    name: 'Google News',
+    url: 'https://news.google.com/rss/search?q=artificial+intelligence+business+impact+OR+AI+enterprise+adoption&hl=en-US&gl=US&ceid=US:en',
+    name: 'AI Business Impact',
   },
   {
-    url: 'https://news.google.com/rss/search?q=machine+learning+AI+tools&hl=en-US&gl=US&ceid=US:en',
-    name: 'Google News (ML)',
+    url: 'https://news.google.com/rss/search?q=AI+productivity+hacks+OR+how+to+work+faster+with+AI&hl=en-US&gl=US&ceid=US:en',
+    name: 'AI Productivity',
   },
   {
-    url: 'https://feeds.feedburner.com/oreilly/radar/atom',
-    name: 'O\'Reilly Radar',
+    url: 'https://news.google.com/rss/search?q=AI+automation+workflows+OR+autonomous+agents+automation&hl=en-US&gl=US&ceid=US:en',
+    name: 'AI Automation',
   },
   {
     url: 'https://blog.google/technology/ai/rss/',
@@ -46,8 +46,8 @@ const RSS_FEEDS = [
     name: 'OpenAI Blog',
   },
   {
-    url: 'https://news.google.com/rss/search?q=ChatGPT+OR+Gemini+OR+Claude+AI&hl=en-US&gl=US&ceid=US:en',
-    name: 'Google News (LLMs)',
+    url: 'https://news.google.com/rss/search?q=ChatGPT+OR+Gemini+OR+Claude+AI+updates&hl=en-US&gl=US&ceid=US:en',
+    name: 'LLM Major Updates',
   },
 ];
 

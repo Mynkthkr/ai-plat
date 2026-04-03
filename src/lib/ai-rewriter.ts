@@ -182,7 +182,15 @@ export async function rewriteWithGemini(
         throw new Error('DAILY_QUOTA_EXHAUSTED');
       }
 
-      console.error('Gemini rewrite error:', error);
+      // Check if we still have retries left for general errors (like JSON parsing)
+      if (attempt < MAX_RETRIES) {
+        console.error(`   ⚠️ Gemini rewrite error (attempt ${attempt}/${MAX_RETRIES}):`, error instanceof Error ? error.message : String(error));
+        console.log(`   🔁 Retrying...`);
+        await sleep(2000);
+        continue;
+      }
+
+      console.error('   ❌ Final Gemini rewrite error after all retries:', error);
       return null;
     }
   }
