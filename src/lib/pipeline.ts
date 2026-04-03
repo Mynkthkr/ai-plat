@@ -24,7 +24,7 @@ const supabase = createClient(
  * Process RSS articles → Gemini rewrite → Save to Supabase
  * Caps at MAX_ARTICLES_PER_RUN to stay within Gemini free tier daily limits
  */
-const MAX_ARTICLES_PER_RUN = 3;
+const MAX_ARTICLES_PER_RUN = 15;
 
 export async function processNewsArticles(): Promise<number> {
   console.log('📰 Fetching AI news from RSS feeds...');
