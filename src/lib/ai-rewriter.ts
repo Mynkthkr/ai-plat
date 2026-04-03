@@ -93,11 +93,17 @@ function isRateLimitError(error: unknown): boolean {
 }
 
 /**
- * Check if error indicates daily quota is fully exhausted
+ * Check if error indicates daily quota is fully exhausted.
+ * The Gemini free-tier error message contains 'PerDayPerProject' in the
+ * quotaId regardless of what the limit value is, so we match on that alone.
  */
 function isDailyQuotaExhausted(error: unknown): boolean {
   const msg = String(error);
-  return msg.includes('PerDayPerProject') && msg.includes('limit: 0');
+  // Matches both the quotaId text and the violation description
+  return (
+    msg.includes('GenerateRequestsPerDayPerProjectPerModel') ||
+    msg.includes('PerDayPerProject')
+  );
 }
 
 export async function rewriteWithGemini(
@@ -156,18 +162,24 @@ export async function rewriteWithGemini(
 
       return parsed;
     } catch (error) {
-      // If daily quota is fully gone, stop trying immediately
+      // If daily quota is fully gone, stop trying immediately (no point retrying)
       if (isDailyQuotaExhausted(error)) {
         console.error('   🚫 Daily Gemini quota exhausted. Stopping all rewrites.');
         throw new Error('DAILY_QUOTA_EXHAUSTED');
       }
 
-      // If rate limited, wait and retry
+      // If rate limited and we have retries left, wait and try again
       if (isRateLimitError(error) && attempt < MAX_RETRIES) {
         const delay = getRetryDelay(error);
         console.log(`   ⏳ Rate limited. Waiting ${Math.round(delay / 1000)}s before retry (attempt ${attempt}/${MAX_RETRIES})...`);
         await sleep(delay);
         continue;
+      }
+
+      // Final attempt also rate-limited → treat as quota exhausted to bail early
+      if (isRateLimitError(error) && attempt >= MAX_RETRIES) {
+        console.error('   🚫 Rate limit persists after all retries. Treating as quota exhausted.');
+        throw new Error('DAILY_QUOTA_EXHAUSTED');
       }
 
       console.error('Gemini rewrite error:', error);
