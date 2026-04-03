@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Sparkles, Activity, Layers, Zap } from 'lucide-react';
+import { Activity, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export default function HeroSection() {
@@ -156,7 +156,7 @@ export default function HeroSection() {
             textShadow: '0 10px 30px rgba(0,0,0,0.5)',
           }}
         >
-          <span style={{ color: 'var(--text-glow)' }}>The Future of AI,</span>
+          <span style={{ color: 'var(--text-glow)' }}>Navigating the AI Frontier,</span>
           <br />
           <motion.span 
             className="gradient-text" 
@@ -170,7 +170,7 @@ export default function HeroSection() {
             }}
             transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
           >
-            Decoded Daily.
+            One Insight at a Time.
           </motion.span>
         </motion.h1>
 
@@ -188,54 +188,8 @@ export default function HeroSection() {
             fontFeatureSettings: '"kern" 1, "liga" 1',
           }}
         >
-          An autonomous pipeline gathering, rewriting, and categorizing the most important AI developments while you sleep. Pure signal, zero noise.
+          Stay ahead of the curve. Pure signal, zero noise.
         </motion.p>
-
-        {/* Action Buttons */}
-        <motion.div
-           initial={{ opacity: 0, y: 20 }}
-           animate={{ opacity: 1, y: 0 }}
-           transition={{ delay: 0.6, duration: 0.8 }}
-           style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center' }}
-        >
-          <motion.button
-            whileHover={{ scale: 1.05, boxShadow: '0 0 25px rgba(180, 0, 255, 0.4)' }}
-            whileTap={{ scale: 0.95 }}
-            className="btn-solid"
-            onClick={() => document.getElementById('feed')?.scrollIntoView({ behavior: 'smooth' })}
-            style={{
-              padding: '16px 36px',
-              fontSize: '1rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-            }}
-          >
-            <Sparkles size={18} />
-            Explore Intel
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.05, background: 'rgba(0, 240, 255, 0.1)' }}
-            whileTap={{ scale: 0.95 }}
-            className="glass-card"
-            style={{
-              padding: '16px 36px',
-              fontSize: '1rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              background: 'transparent',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              color: 'var(--text-primary)',
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
-          >
-            <Layers size={18} style={{ color: 'var(--neon-cyan)' }} />
-            View Stack
-          </motion.button>
-        </motion.div>
         
         {/* Decorative elements */}
         <motion.div 

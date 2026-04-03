@@ -339,7 +339,8 @@ export default function Home() {
                   ? articles.length
                   : articles.filter((a) => a.category === section.key).length;
 
-                if (count === 0 && section.key !== 'ALL') return null;
+                // Always show tabs, even if count is 0
+                // if (count === 0 && section.key !== 'ALL') return null;
 
                 return (
                   <button

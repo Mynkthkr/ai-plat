@@ -43,6 +43,17 @@ ALSO provide a SHORT card summary (1-2 sentences, max 200 chars) for the homepag
 
 Generate a URL-friendly slug from the title (lowercase, hyphens, no special chars, max 80 chars).
 
+CATEGORY SELECTION — You MUST pick the single BEST category. Do NOT default to AI_NEWS. Read carefully:
+- "AI_TOOLS" → About a specific AI tool, app, API, library, or platform (e.g. new ChatGPT feature, a coding assistant, an image generator)
+- "PRODUCT_LAUNCH" → A company launching or announcing a new AI product/service/model
+- "AI_USE_CASES" → How people or companies are USING AI to solve real problems, boost productivity, automate tasks, or transform their business
+- "PROMPT_OF_DAY" → Tips, tricks, or techniques for better prompting or getting more out of AI tools  
+- "AI_TUTORIALS" → How-to guides, coding tutorials, step-by-step instructions involving AI
+- "RESEARCH" → Academic papers, breakthroughs, benchmarks, or technical deep-dives
+- "INDUSTRY" → Market trends, funding rounds, acquisitions, layoffs, regulation, or business strategy around AI
+- "AI_MEMES" → Lighthearted, funny, or satirical takes on AI culture
+- "AI_NEWS" → ONLY use this if the article truly doesn't fit any of the above categories
+
 OUTPUT FORMAT (respond ONLY with valid JSON, no markdown code blocks):
 {
   "title": "A compelling, clear title (different from original)",
@@ -51,7 +62,7 @@ OUTPUT FORMAT (respond ONLY with valid JSON, no markdown code blocks):
   "content": "A 2-3 sentence preview excerpt for homepage cards",
   "fullContent": "The FULL rewritten article in markdown (600-1200 words with ## headers)",
   "tags": ["tag1", "tag2", "tag3"],
-  "category": "AI_NEWS | AI_TOOLS | AI_MEMES | AI_USE_CASES | PROMPT_OF_DAY | AI_TUTORIALS | RESEARCH | PRODUCT_LAUNCH | INDUSTRY",
+  "category": "ONE of: AI_NEWS, AI_TOOLS, AI_USE_CASES, PROMPT_OF_DAY, AI_TUTORIALS, RESEARCH, PRODUCT_LAUNCH, INDUSTRY, AI_MEMES",
   "hypeScore": 8,
   "realityCheck": "A short, grounded 1-sentence reality check separating the hype from the actual utility."
 }`;
