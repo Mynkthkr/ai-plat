@@ -6,7 +6,7 @@ import { Clock, BookOpen, CheckCircle } from 'lucide-react';
 import { ArticleDisplay, categoryColors, categoryLabels, categoryIcons } from '@/lib/types';
 
 interface ArticleCardProps {
-  article: ArticleDisplay;
+  article: ArticleDisplay & { freshness?: 'hot' | 'recent' | 'older' };
   index: number;
   isRead: boolean;
   onRead: (id: string) => void;
@@ -89,6 +89,25 @@ export default function ArticleCard({ article, index, isRead, onRead, compact = 
               >
                 {categoryIcon} {categoryLabel}
               </span>
+              {/* HOT badge for articles < 24h */}
+              {article.freshness === 'hot' && (
+                <span
+                  className="badge"
+                  style={{
+                    position: 'absolute',
+                    top: '12px',
+                    left: article.image_url ? '140px' : '12px',
+                    background: 'rgba(255, 60, 60, 0.2)',
+                    color: '#ff4444',
+                    border: '1px solid rgba(255, 60, 60, 0.5)',
+                    backdropFilter: 'blur(10px)',
+                    animation: 'pulse 2s ease-in-out infinite',
+                    fontSize: '0.62rem',
+                  }}
+                >
+                  🔥 HOT
+                </span>
+              )}
               {/* Read badge */}
               {isRead && (
                 <div
@@ -136,7 +155,7 @@ export default function ArticleCard({ article, index, isRead, onRead, compact = 
           <div style={{ padding: compact ? '14px 16px' : '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
             {/* Category badge (if no image or compact) */}
             {(!article.image_url || compact) && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: compact ? '8px' : '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: compact ? '8px' : '12px', flexWrap: 'wrap' }}>
                 <span
                   className="badge"
                   style={{
@@ -148,6 +167,20 @@ export default function ArticleCard({ article, index, isRead, onRead, compact = 
                 >
                   {categoryIcon} {categoryLabel}
                 </span>
+                {article.freshness === 'hot' && !compact && (
+                  <span
+                    className="badge"
+                    style={{
+                      background: 'rgba(255, 60, 60, 0.15)',
+                      color: '#ff4444',
+                      border: '1px solid rgba(255, 60, 60, 0.4)',
+                      animation: 'pulse 2s ease-in-out infinite',
+                      fontSize: '0.62rem',
+                    }}
+                  >
+                    🔥 HOT
+                  </span>
+                )}
                 {isRead && (
                   <span
                     style={{

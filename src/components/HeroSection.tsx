@@ -1,165 +1,270 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Sparkles, Quote } from 'lucide-react';
+import { Sparkles, Activity, Layers, Zap } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function HeroSection() {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({
+        x: e.clientX,
+        y: e.clientY,
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   return (
     <section
       style={{
         position: 'relative',
-        minHeight: '60vh',
+        minHeight: '80vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
-        paddingTop: '100px',
-        paddingBottom: '40px',
+        paddingTop: '80px',
+        paddingBottom: '60px',
       }}
     >
-      {/* Animated Background Orbs */}
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+      {/* Dynamic Grid Background */}
+      <div 
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundSize: '40px 40px',
+          backgroundImage: 'linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px)',
+          backgroundPosition: 'center center',
+          maskImage: 'radial-gradient(ellipse at center, black 10%, transparent 70%)',
+          WebkitMaskImage: 'radial-gradient(ellipse at center, black 10%, transparent 70%)',
+          zIndex: 0,
+        }}
+      />
+
+      {/* Interactive Glow effect following mouse */}
+      <motion.div
+        animate={{
+          x: mousePosition.x - 300,
+          y: mousePosition.y - 300,
+        }}
+        transition={{ type: 'tween', ease: 'backOut', duration: 0.5 }}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: 600,
+          height: 600,
+          background: 'radial-gradient(circle, rgba(180, 0, 255, 0.06) 0%, transparent 60%)',
+          zIndex: 0,
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Floating Orbs */}
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
         <motion.div
           animate={{
             x: [0, 80, -40, 0],
             y: [0, -60, 40, 0],
-            scale: [1, 1.15, 0.85, 1],
+            scale: [1, 1.2, 0.8, 1],
           }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
+          transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
           style={{
             position: 'absolute',
-            top: '10%',
-            left: '20%',
-            width: 450,
-            height: 450,
+            top: '20%',
+            left: '15%',
+            width: 400,
+            height: 400,
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(0, 240, 255, 0.07) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(0, 240, 255, 0.12) 0%, transparent 70%)',
+            filter: 'blur(30px)',
           }}
         />
         <motion.div
           animate={{
-            x: [0, -60, 50, 0],
-            y: [0, 50, -30, 0],
-            scale: [1, 0.9, 1.2, 1],
+            x: [0, -60, 80, 0],
+            y: [0, 80, -30, 0],
+            scale: [1, 0.8, 1.2, 1],
           }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
+          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
           style={{
             position: 'absolute',
-            bottom: '5%',
+            bottom: '10%',
             right: '15%',
-            width: 500,
-            height: 500,
+            width: 450,
+            height: 450,
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(180, 0, 255, 0.07) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(255, 60, 100, 0.12) 0%, transparent 70%)',
+            filter: 'blur(30px)',
           }}
         />
       </div>
 
       {/* Main Content */}
-      <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: '860px', padding: '0 24px' }}>
+      <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: '900px', padding: '0 24px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        
         {/* Status Badge */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.1, duration: 0.8, ease: "easeOut" }}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
-            padding: '8px 20px',
-            background: 'rgba(0, 240, 255, 0.05)',
-            border: '1px solid rgba(0, 240, 255, 0.15)',
+            gap: '10px',
+            padding: '8px 24px',
+            background: 'linear-gradient(90deg, rgba(0, 240, 255, 0.1), rgba(180, 0, 255, 0.05))',
+            border: '1px solid rgba(0, 240, 255, 0.2)',
             borderRadius: 'var(--radius-full)',
-            marginBottom: '36px',
-            fontSize: '0.78rem',
+            marginBottom: '40px',
+            fontSize: '0.8rem',
             fontWeight: 600,
             color: 'var(--neon-cyan)',
             fontFamily: "'JetBrains Mono', monospace",
             textTransform: 'uppercase',
-            letterSpacing: '1.5px',
+            letterSpacing: '2px',
+            boxShadow: '0 0 20px rgba(0, 240, 255, 0.1)',
           }}
         >
-          <Sparkles size={14} />
-          Thought of the Day
-        </motion.div>
-
-        {/* Quote Icon */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3, type: 'spring', stiffness: 80 }}
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginBottom: '24px',
-          }}
-        >
-          <div
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, rgba(0, 240, 255, 0.12), rgba(180, 0, 255, 0.12))',
-              border: '1px solid rgba(0, 240, 255, 0.2)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+          <motion.div
+            animate={{ 
+              rotate: [0, 10, -10, 0],
+              scale: [1, 1.2, 1] 
             }}
+            transition={{ duration: 2, repeat: Infinity }}
           >
-            <Quote size={24} color="var(--neon-cyan)" />
-          </div>
+            <Activity size={16} />
+          </motion.div>
+          Live AI Intel
         </motion.div>
 
-        {/* The Quote */}
+        {/* The Title */}
         <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, type: 'spring', stiffness: 50 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2, duration: 0.8, type: 'spring', stiffness: 40 }}
           style={{
-            fontSize: 'clamp(1.75rem, 4.5vw, 3.25rem)',
-            fontWeight: 800,
-            lineHeight: 1.25,
-            marginBottom: '24px',
-            letterSpacing: '-0.5px',
+            fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
+            fontWeight: 900,
+            lineHeight: 1.1,
+            marginBottom: '30px',
+            letterSpacing: '-1px',
+            textShadow: '0 10px 30px rgba(0,0,0,0.5)',
           }}
         >
-          <span style={{ color: 'var(--text-glow)' }}>AI will never replace you,</span>
+          <span style={{ color: 'var(--text-glow)' }}>The Future of AI,</span>
           <br />
-          <span className="gradient-text" style={{ fontStyle: 'italic' }}>
-            a person using AI will.
-          </span>
+          <motion.span 
+            className="gradient-text" 
+            style={{ 
+              fontStyle: 'italic', 
+              position: 'relative',
+              display: 'inline-block' 
+            }}
+            animate={{
+              backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+            }}
+            transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+          >
+            Decoded Daily.
+          </motion.span>
         </motion.h1>
 
         {/* Subtitle */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.4, duration: 0.8 }}
           style={{
-            fontSize: 'clamp(0.95rem, 1.8vw, 1.15rem)',
+            fontSize: 'clamp(1rem, 2vw, 1.25rem)',
             color: 'var(--text-secondary)',
-            maxWidth: '600px',
-            margin: '0 auto',
-            lineHeight: 1.7,
+            maxWidth: '650px',
+            lineHeight: 1.6,
+            marginBottom: '50px',
+            fontFeatureSettings: '"kern" 1, "liga" 1',
           }}
         >
-          Your daily AI intelligence feed — auto-curated, rewritten by AI,
-          and delivered fresh every 24 hours. Zero noise, pure signal.
+          An autonomous pipeline gathering, rewriting, and categorizing the most important AI developments while you sleep. Pure signal, zero noise.
         </motion.p>
 
-        {/* Decorative separator */}
+        {/* Action Buttons */}
         <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ delay: 0.8, duration: 0.8, ease: 'easeOut' }}
+           initial={{ opacity: 0, y: 20 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ delay: 0.6, duration: 0.8 }}
+           style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center' }}
+        >
+          <motion.button
+            whileHover={{ scale: 1.05, boxShadow: '0 0 25px rgba(180, 0, 255, 0.4)' }}
+            whileTap={{ scale: 0.95 }}
+            className="btn-solid"
+            onClick={() => document.getElementById('feed')?.scrollIntoView({ behavior: 'smooth' })}
+            style={{
+              padding: '16px 36px',
+              fontSize: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+            }}
+          >
+            <Sparkles size={18} />
+            Explore Intel
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.05, background: 'rgba(0, 240, 255, 0.1)' }}
+            whileTap={{ scale: 0.95 }}
+            className="glass-card"
+            style={{
+              padding: '16px 36px',
+              fontSize: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              background: 'transparent',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: 'var(--text-primary)',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            <Layers size={18} style={{ color: 'var(--neon-cyan)' }} />
+            View Stack
+          </motion.button>
+        </motion.div>
+        
+        {/* Decorative elements */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 2 }}
           style={{
-            width: '120px',
-            height: '2px',
-            margin: '36px auto 0',
-            background: 'linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-purple), transparent)',
-            borderRadius: '2px',
+            position: 'absolute',
+            bottom: '-40px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '10px',
+            color: 'var(--text-muted)',
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: '0.7rem',
+            letterSpacing: '1px',
           }}
-        />
+        >
+          <motion.div
+             animate={{ y: [0, 10, 0] }}
+             transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <div style={{ width: '1px', height: '40px', background: 'linear-gradient(to bottom, var(--neon-cyan), transparent)' }} />
+          </motion.div>
+          SCROLL TO INITIALIZE
+        </motion.div>
       </div>
     </section>
   );

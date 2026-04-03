@@ -7,48 +7,76 @@ export async function GET() {
     const supabase = getSupabase();
 
     if (!supabase) {
-      // Demo mode — return seed data
-      return NextResponse.json({ articles: sampleArticles, source: 'demo' });
+      // Demo mode — return seed data with freshness tags
+      return NextResponse.json({
+        articles: tagFreshness(sampleArticles),
+        source: 'demo',
+      });
     }
 
-    // Fetch articles from last 24 hours (strict freshness), ordered by published_date desc
-    const cutoff24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    // Fetch articles from last 4 days so the site always has content
+    const cutoff4d = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString();
 
-    const { data: freshArticles, error } = await supabase
+    const { data: articles, error } = await supabase
       .from('articles')
       .select('*')
-      .gte('published_date', cutoff24h)
+      .gte('published_date', cutoff4d)
       .order('published_date', { ascending: false })
-      .limit(30);
+      .limit(50);
 
     if (error) {
       console.error('Supabase fetch error:', error);
-      return NextResponse.json({ articles: sampleArticles, source: 'demo-fallback' });
+      return NextResponse.json({
+        articles: tagFreshness(sampleArticles),
+        source: 'demo-fallback',
+      });
     }
 
-    // If we have fresh articles within 24h, return them
-    if (freshArticles && freshArticles.length > 0) {
-      return NextResponse.json({ articles: freshArticles, source: 'supabase' });
-    }
-
-    // Fallback: try last 72h of DB articles before falling back to seed data
-    // This prevents showing stale seed data when pipeline had a brief gap
-    const cutoff72h = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
-    const { data: recentArticles } = await supabase
-      .from('articles')
-      .select('*')
-      .gte('published_date', cutoff72h)
-      .order('published_date', { ascending: false })
-      .limit(20);
-
-    if (recentArticles && recentArticles.length > 0) {
-      return NextResponse.json({ articles: recentArticles, source: 'supabase-recent' });
+    if (articles && articles.length > 0) {
+      return NextResponse.json({
+        articles: tagFreshness(articles),
+        source: 'supabase',
+      });
     }
 
     // Final fallback: demo seed data
-    return NextResponse.json({ articles: sampleArticles, source: 'demo-empty' });
+    return NextResponse.json({
+      articles: tagFreshness(sampleArticles),
+      source: 'demo-empty',
+    });
   } catch (error) {
     console.error('Articles API error:', error);
-    return NextResponse.json({ articles: sampleArticles, source: 'demo-error' });
+    return NextResponse.json({
+      articles: tagFreshness(sampleArticles),
+      source: 'demo-error',
+    });
   }
+}
+
+/**
+ * Tag each article with a `freshness` field:
+ *  - "hot"    → published within the last 24 hours
+ *  - "recent" → published within the last 3 days
+ *  - "older"  → everything else
+ */
+function tagFreshness<T extends { published_date: string }>(
+  articles: T[]
+): (T & { freshness: 'hot' | 'recent' | 'older' })[] {
+  const now = Date.now();
+  const DAY = 24 * 60 * 60 * 1000;
+
+  return articles.map((a) => {
+    const age = now - new Date(a.published_date).getTime();
+    let freshness: 'hot' | 'recent' | 'older';
+
+    if (age < DAY) {
+      freshness = 'hot';
+    } else if (age < 3 * DAY) {
+      freshness = 'recent';
+    } else {
+      freshness = 'older';
+    }
+
+    return { ...a, freshness };
+  });
 }

@@ -408,65 +408,6 @@ export default function Home() {
           </section>
         )}
 
-        {/* Stats Banner */}
-        <motion.section
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          style={{
-            marginBottom: '64px',
-            padding: '40px',
-            borderRadius: 'var(--radius-xl)',
-            background: 'linear-gradient(135deg, rgba(0, 240, 255, 0.03), rgba(180, 0, 255, 0.03))',
-            border: '1px solid rgba(0, 240, 255, 0.08)',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-glow)', marginBottom: '6px' }}>
-              Powered by Automated Intelligence
-            </h3>
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', maxWidth: '480px', margin: '0 auto 28px' }}>
-              RSS feeds → Gemini AI rewriting → Supabase → Your screen. Fully automated, zero manual work.
-            </p>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '40px', flexWrap: 'wrap' }}>
-              {[
-                { label: 'Content Categories', value: '6' },
-                { label: 'Updated Every', value: '24h' },
-                { label: 'AI Rewritten', value: '100%' },
-                { label: 'Cost', value: '$0' },
-              ].map((stat) => (
-                <div key={stat.label} style={{ textAlign: 'center' }}>
-                  <div
-                    className="font-display"
-                    style={{
-                      fontSize: '1.5rem',
-                      fontWeight: 800,
-                      background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                    }}
-                  >
-                    {stat.value}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: '0.65rem',
-                      color: 'var(--text-muted)',
-                      fontFamily: "'JetBrains Mono', monospace",
-                      textTransform: 'uppercase',
-                      letterSpacing: '1px',
-                      marginTop: '4px',
-                    }}
-                  >
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </motion.section>
       </main>
 
       <Footer />
