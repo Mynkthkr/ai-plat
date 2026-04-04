@@ -13,7 +13,7 @@ interface ArticleCardProps {
   compact?: boolean;
 }
 
-export default function ArticleCard({ article, index, isRead, onRead, compact = false }: ArticleCardProps) {
+export default function ArticleCard({ article, index, isRead, onRead }: ArticleCardProps) {
   const categoryColor = categoryColors[article.category] || '#00f0ff';
   const categoryLabel = categoryLabels[article.category] || article.category;
   const categoryIcon = categoryIcons?.[article.category] || '📰';
@@ -31,14 +31,14 @@ export default function ArticleCard({ article, index, isRead, onRead, compact = 
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  // Internal link — NO external redirects
   const articleUrl = `/article/${article.id}`;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 25 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05, type: 'spring', stiffness: 80 }}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.03, duration: 0.5, ease: 'easeOut' }}
     >
       <Link
         href={articleUrl}
@@ -46,227 +46,157 @@ export default function ArticleCard({ article, index, isRead, onRead, compact = 
         style={{ textDecoration: 'none', display: 'block' }}
       >
         <div
-          className="glass-card card-hover-glow"
+          className="glass-card"
           style={{
             overflow: 'hidden',
             cursor: 'pointer',
             height: '100%',
             display: 'flex',
-            flexDirection: compact ? 'row' : 'column',
-            opacity: isRead ? 0.6 : 1,
-            transition: 'opacity 300ms ease, transform 300ms ease, box-shadow 300ms ease, border-color 300ms ease',
+            flexDirection: 'column',
+            opacity: isRead ? 0.7 : 1,
+            position: 'relative',
+            border: `1px solid rgba(255,255,255,0.05)`,
+            boxShadow: isRead ? 'none' : `0 4px 20px -5px rgba(0,0,0,0.5)`,
+            transition: 'all 400ms cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         >
-          {/* Image */}
-          {article.image_url && !compact && (
+          {/* Top Border Glow */}
+          <div 
+            style={{ 
+              position: 'absolute', 
+              top: 0, 
+              left: 0, 
+              right: 0, 
+              height: '3px', 
+              background: `linear-gradient(90deg, ${categoryColor}, transparent)`,
+              zIndex: 10,
+              opacity: isRead ? 0.3 : 1
+            }} 
+          />
+
+          {/* Image Container */}
+          <div
+            style={{
+              position: 'relative',
+              height: '220px',
+              overflow: 'hidden',
+              flexShrink: 0,
+            }}
+          >
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.6 }}
+              style={{
+                width: '100%',
+                height: '100%',
+                background: `url(${article.image_url}) center/cover no-repeat`,
+              }}
+            />
+            
             <div
               style={{
-                position: 'relative',
-                height: '180px',
-                background: `url(${article.image_url}) center/cover`,
-                flexShrink: 0,
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(12,12,12,0.8) 70%, rgba(12,12,12,1) 100%)',
+              }}
+            />
+
+            <div
+              style={{
+                position: 'absolute',
+                top: '16px',
+                left: '16px',
+                display: 'flex',
+                gap: '8px',
+                zIndex: 5
               }}
             >
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'linear-gradient(180deg, transparent 40%, rgba(18, 18, 26, 0.95))',
-                }}
-              />
-              {/* Category badge on image */}
               <span
-                className="badge"
                 style={{
-                  position: 'absolute',
-                  top: '12px',
-                  left: '12px',
-                  background: `${categoryColor}18`,
+                  padding: '4px 12px',
+                  background: `${categoryColor}20`,
                   color: categoryColor,
-                  border: `1px solid ${categoryColor}35`,
-                  backdropFilter: 'blur(10px)',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.65rem',
+                  fontWeight: 700,
+                  backdropFilter: 'blur(12px)',
+                  border: `1px solid ${categoryColor}40`,
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
                 }}
               >
                 {categoryIcon} {categoryLabel}
               </span>
+            </div>
 
-              {/* Read badge */}
+            <div style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', gap: '8px', zIndex: 5 }}>
               {isRead && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '12px',
-                    right: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    padding: '4px 10px',
-                    background: 'rgba(0, 255, 136, 0.12)',
-                    border: '1px solid rgba(0, 255, 136, 0.3)',
-                    borderRadius: 'var(--radius-full)',
-                    fontSize: '0.65rem',
-                    fontWeight: 600,
-                    color: 'var(--neon-green)',
-                    fontFamily: "'JetBrains Mono', monospace",
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    backdropFilter: 'blur(10px)',
-                  }}
-                >
-                  <CheckCircle size={11} />
-                  Read
+                <div style={{ padding: '6px', background: 'rgba(0, 255, 136, 0.1)', border: '1px solid var(--neon-green)', color: 'var(--neon-green)', borderRadius: '50%', backdropFilter: 'blur(10px)' }}>
+                  <CheckCircle size={14} />
                 </div>
               )}
             </div>
-          )}
+          </div>
 
-          {/* Compact image */}
-          {article.image_url && compact && (
-            <div
-              style={{
-                width: '100px',
-                minHeight: '100px',
-                background: `url(${article.image_url}) center/cover`,
-                flexShrink: 0,
-                borderRadius: 'var(--radius-sm) 0 0 var(--radius-sm)',
-              }}
-            />
-          )}
-
-          {/* Content */}
-          <div style={{ padding: compact ? '14px 16px' : '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-            {/* Category badge (if no image or compact) */}
-            {(!article.image_url || compact) && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: compact ? '8px' : '12px', flexWrap: 'wrap' }}>
-                <span
-                  className="badge"
-                  style={{
-                    background: `${categoryColor}12`,
-                    color: categoryColor,
-                    border: `1px solid ${categoryColor}35`,
-                    fontSize: compact ? '0.6rem' : undefined,
-                  }}
-                >
-                  {categoryIcon} {categoryLabel}
-                </span>
-
-                {isRead && (
-                  <span
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      fontSize: '0.65rem',
-                      fontWeight: 600,
-                      color: 'var(--neon-green)',
-                      fontFamily: "'JetBrains Mono', monospace",
-                    }}
-                  >
-                    <CheckCircle size={11} />
-                    Read
-                  </span>
-                )}
-              </div>
-            )}
-
+          <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-card)' }}>
             <h3
               style={{
-                fontSize: compact ? '0.9rem' : '1.05rem',
-                fontWeight: 700,
-                color: isRead ? 'var(--text-secondary)' : 'var(--text-glow)',
-                marginBottom: compact ? '6px' : '10px',
-                lineHeight: 1.35,
+                fontSize: '1.2rem',
+                fontWeight: 800,
+                color: isRead ? 'var(--text-secondary)' : '#ffffff',
+                marginBottom: '12px',
+                lineHeight: 1.3,
                 display: '-webkit-box',
                 WebkitLineClamp: 2,
                 WebkitBoxOrient: 'vertical',
                 overflow: 'hidden',
-                transition: 'color 300ms ease',
+                letterSpacing: '-0.2px',
               }}
             >
               {article.title}
             </h3>
 
-            {!compact && (
-              <p
-                style={{
-                  fontSize: '0.85rem',
-                  color: 'var(--text-secondary)',
-                  lineHeight: 1.6,
-                  flex: 1,
-                  display: '-webkit-box',
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                  marginBottom: '14px',
-                }}
-              >
-                {article.summary}
-              </p>
-            )}
+            <p
+              style={{
+                fontSize: '0.9rem',
+                color: 'var(--text-secondary)',
+                lineHeight: 1.7,
+                marginBottom: '20px',
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                flex: 1
+              }}
+            >
+              {article.summary}
+            </p>
 
-            {/* Tags (not compact) */}
-            {!compact && article.tags.length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '12px' }}>
-                {article.tags.slice(0, 3).map((tag) => (
-                  <span
-                    key={tag}
-                    style={{
-                      fontSize: '0.62rem',
-                      padding: '3px 8px',
-                      background: 'var(--bg-elevated)',
-                      borderRadius: 'var(--radius-full)',
-                      color: 'var(--text-muted)',
-                      fontFamily: "'JetBrains Mono', monospace",
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                    }}
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Footer */}
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                paddingTop: compact ? '8px' : '12px',
-                borderTop: compact ? 'none' : '1px solid rgba(255, 255, 255, 0.05)',
-                marginTop: compact ? 'auto' : undefined,
+                paddingTop: '16px',
+                borderTop: '1px solid rgba(255,255,255,0.05)',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    fontSize: '0.72rem',
-                    color: 'var(--text-muted)',
-                    fontFamily: "'JetBrains Mono', monospace",
-                  }}
-                >
-                  <Clock size={12} />
-                  {formatDate(article.published_date)}
-                </span>
-                {article.source_name && !compact && (
-                  <span
-                    style={{
-                      fontSize: '0.7rem',
-                      color: 'var(--text-muted)',
-                      fontFamily: "'JetBrains Mono', monospace",
-                    }}
-                  >
-                    · {article.source_name}
-                  </span>
-                )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                  <Clock size={14} />
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{formatDate(article.published_date)}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                  <BookOpen size={14} />
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>5 min read</span>
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--neon-cyan)', fontSize: '0.72rem' }}>
-                <BookOpen size={13} />
-                <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>Read</span>
+              
+              <div style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', fontWeight: 600 }}>
+                READ MORE →
               </div>
             </div>
           </div>
