@@ -19,7 +19,8 @@ export default function Home() {
   const { markAsRead, isRead, loaded: hooksLoaded } = useReadArticles();
   const [activeTab, setActiveTab] = useState<string>('ALL');
   
-  const [articles, setArticles] = useState(sampleArticles);
+  // Start with empty array — no seed data flash. Real articles load from DB.
+  const [articles, setArticles] = useState<typeof sampleArticles>([]);
   const [dbLoaded, setDbLoaded] = useState(false);
 
   useEffect(() => {
@@ -30,10 +31,16 @@ export default function Home() {
           const data = await res.json();
           if (data.articles && data.articles.length > 0) {
             setArticles(data.articles);
+          } else {
+            // Only use seed data if DB truly has nothing
+            setArticles(sampleArticles);
           }
+        } else {
+          setArticles(sampleArticles);
         }
       } catch (err) {
         console.error('Error fetching live articles:', err);
+        setArticles(sampleArticles);
       } finally {
         setDbLoaded(true);
       }
@@ -77,18 +84,52 @@ export default function Home() {
             subtitle="The most recent breakthroughs and updates"
             accentColor="var(--neon-cyan)"
           />
-          <div className="masonry-grid">
-            {latestArticles.map((article: any, i: number) => (
-              <ArticleCard
-                key={article.id}
-                article={article}
-                index={i}
-                isRead={isRead(article.id)}
-                onRead={markAsRead}
-                compact={false} // Ensure full view with image
-              />
-            ))}
-          </div>
+          {!dbLoaded ? (
+            /* Skeleton shimmer while DB articles load */
+            <div className="masonry-grid">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <div
+                  key={i}
+                  className="glass-card"
+                  style={{
+                    overflow: 'hidden',
+                    height: '420px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    opacity: 0.5,
+                  }}
+                >
+                  <div
+                    style={{
+                      height: '220px',
+                      background:
+                        'linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%)',
+                      backgroundSize: '400% 100%',
+                      animation: 'shimmer 1.5s infinite',
+                    }}
+                  />
+                  <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ height: '18px', borderRadius: '6px', background: 'rgba(255,255,255,0.06)', width: '90%' }} />
+                    <div style={{ height: '14px', borderRadius: '6px', background: 'rgba(255,255,255,0.04)', width: '70%' }} />
+                    <div style={{ height: '14px', borderRadius: '6px', background: 'rgba(255,255,255,0.04)', width: '80%' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="masonry-grid">
+              {latestArticles.map((article: any, i: number) => (
+                <ArticleCard
+                  key={article.id}
+                  article={article}
+                  index={i}
+                  isRead={isRead(article.id)}
+                  onRead={markAsRead}
+                  compact={false}
+                />
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Tech Roast - Interactive Break */}

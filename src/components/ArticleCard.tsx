@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Clock, BookOpen, CheckCircle } from 'lucide-react';
 import { ArticleDisplay, categoryColors, categoryLabels, categoryIcons } from '@/lib/types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ArticleCardProps {
   article: ArticleDisplay & { freshness?: 'hot' | 'recent' | 'older' };
@@ -15,8 +15,22 @@ interface ArticleCardProps {
 }
 
 // ─── Stable img component so onError survives re-renders ─────────────────────
+// IMPORTANT: We must sync imgSrc via useEffect when src prop changes.
+// Using only useState(src) means the initial state is frozen on first mount —
+// when the parent re-renders with a new src url (e.g. after DB fetch replaces
+// seed data), the displayed image would never update. The useEffect fixes this.
 function ArticleImage({ src, fallback, alt }: { src: string; fallback: string; alt: string }) {
   const [imgSrc, setImgSrc] = useState(src);
+  const [errored, setErrored] = useState(false);
+
+  // Sync when the real image URL arrives (e.g. after async DB fetch)
+  useEffect(() => {
+    if (src && src !== imgSrc) {
+      setImgSrc(src);
+      setErrored(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [src]);
 
   return (
     <motion.div
@@ -26,9 +40,12 @@ function ArticleImage({ src, fallback, alt }: { src: string; fallback: string; a
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={imgSrc}
+        src={errored ? fallback : imgSrc}
         alt={alt}
-        onError={() => setImgSrc(fallback)}
+        onError={() => {
+          setErrored(true);
+          setImgSrc(fallback);
+        }}
         style={{
           width: '100%',
           height: '100%',

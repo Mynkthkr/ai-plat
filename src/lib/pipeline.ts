@@ -83,12 +83,28 @@ export async function processNewsArticles(): Promise<number> {
         continue;
       }
 
-      // Handle missing image — Fallback to Unsplash via the AI-generated prompt
+      // Handle missing image — pick a deterministic high-quality Unsplash photo
+      // based on the article title hash so each article gets a consistent,
+      // visually distinct image (the same URL every run, no random flicker).
       let finalImageUrl = raw.imageUrl;
       if (!finalImageUrl) {
-        const query = encodeURIComponent(rewritten.imagePrompt || 'artificial intelligence tech');
-        // We use a high-quality Unsplash source with the AI-provided keywords as a search query
-        finalImageUrl = `https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop&sig=${Math.random()}`;
+        const FALLBACK_POOL = [
+          'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop', // AI neural
+          'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=800&auto=format&fit=crop', // Robot
+          'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=800&auto=format&fit=crop', // Crypto/tech
+          'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop', // Retro tech
+          'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop', // Space/data
+          'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop', // Code screen
+          'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop', // Circuit
+          'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=800&auto=format&fit=crop', // Robot hand
+          'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=800&auto=format&fit=crop', // Matrix
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop', // Data center
+          'https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=800&auto=format&fit=crop', // AI chip
+          'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=800&auto=format&fit=crop', // Blue data
+        ];
+        // Deterministic hash from article title so the same article always gets same image
+        const hash = raw.title.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+        finalImageUrl = FALLBACK_POOL[hash % FALLBACK_POOL.length];
       }
 
       // Store in Supabase
