@@ -32,6 +32,18 @@ export default function ArticleCard({ article, index, isRead, onRead }: ArticleC
   };
 
   const articleUrl = `/article/${article.id}`;
+  
+  // Safe Fallback Images
+  const fallbacks = [
+    'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop'
+  ];
+  // Deterministic fallback based on id length/chars
+  const defaultImg = fallbacks[(article.id.length || 0) % fallbacks.length];
+  
+  const displayImage = (article.image_url && article.image_url !== 'null') ? article.image_url : defaultImg;
 
   return (
     <motion.div
@@ -89,7 +101,7 @@ export default function ArticleCard({ article, index, isRead, onRead }: ArticleC
               style={{
                 width: '100%',
                 height: '100%',
-                background: `url(${article.image_url}) center/cover no-repeat`,
+                background: `url('${displayImage}') center/cover no-repeat`,
               }}
             />
             
