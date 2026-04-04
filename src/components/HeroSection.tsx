@@ -156,7 +156,7 @@ export default function HeroSection() {
             textShadow: '0 10px 30px rgba(0,0,0,0.5)',
           }}
         >
-          <span style={{ color: 'var(--text-glow)' }}>Navigating the AI Frontier,</span>
+          <span style={{ color: 'var(--text-glow)' }}>AI won't replace you,</span>
           <br />
           <motion.span 
             className="gradient-text" 
@@ -170,7 +170,7 @@ export default function HeroSection() {
             }}
             transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
           >
-            One Insight at a Time.
+            if you update yourself with AI.
           </motion.span>
         </motion.h1>
 
