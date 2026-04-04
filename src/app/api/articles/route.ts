@@ -2,6 +2,23 @@ import { NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
 import { sampleArticles } from '@/lib/seed-data';
 
+// High-quality AI-themed fallback images (Unsplash, stable URLs)
+const FALLBACK_IMAGES = [
+  'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop',
+];
+
+function ensureImage<T extends { id: string; image_url?: string | null }>(article: T): T {
+  if (article.image_url && article.image_url !== 'null') return article;
+  // Deterministic fallback based on article id
+  const idx = article.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % FALLBACK_IMAGES.length;
+  return { ...article, image_url: FALLBACK_IMAGES[idx] };
+}
+
 export async function GET() {
   try {
     const supabase = getSupabase();
@@ -34,7 +51,7 @@ export async function GET() {
 
     if (articles && articles.length > 0) {
       return NextResponse.json({
-        articles: tagFreshness(articles),
+        articles: tagFreshness(articles.map(ensureImage)),
         source: 'supabase',
       });
     }

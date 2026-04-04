@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Clock, BookOpen, CheckCircle } from 'lucide-react';
 import { ArticleDisplay, categoryColors, categoryLabels, categoryIcons } from '@/lib/types';
+import { useState } from 'react';
 
 interface ArticleCardProps {
   article: ArticleDisplay & { freshness?: 'hot' | 'recent' | 'older' };
@@ -11,6 +12,33 @@ interface ArticleCardProps {
   isRead: boolean;
   onRead: (id: string) => void;
   compact?: boolean;
+}
+
+// ─── Stable img component so onError survives re-renders ─────────────────────
+function ArticleImage({ src, fallback, alt }: { src: string; fallback: string; alt: string }) {
+  const [imgSrc, setImgSrc] = useState(src);
+
+  return (
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      transition={{ duration: 0.6 }}
+      style={{ width: '100%', height: '100%', position: 'relative' }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={imgSrc}
+        alt={alt}
+        onError={() => setImgSrc(fallback)}
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          objectPosition: 'center',
+          display: 'block',
+        }}
+      />
+    </motion.div>
+  );
 }
 
 export default function ArticleCard({ article, index, isRead, onRead }: ArticleCardProps) {
@@ -32,18 +60,19 @@ export default function ArticleCard({ article, index, isRead, onRead }: ArticleC
   };
 
   const articleUrl = `/article/${article.id}`;
-  
+
   // Safe Fallback Images
   const fallbacks = [
     'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=800&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop'
+    'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop',
   ];
-  // Deterministic fallback based on id length/chars
+  // Deterministic fallback based on id length
   const defaultImg = fallbacks[(article.id.length || 0) % fallbacks.length];
-  
-  const displayImage = (article.image_url && article.image_url !== 'null') ? article.image_url : defaultImg;
+
+  const displayImage =
+    article.image_url && article.image_url !== 'null' ? article.image_url : defaultImg;
 
   return (
     <motion.div
@@ -73,17 +102,17 @@ export default function ArticleCard({ article, index, isRead, onRead }: ArticleC
           }}
         >
           {/* Top Border Glow */}
-          <div 
-            style={{ 
-              position: 'absolute', 
-              top: 0, 
-              left: 0, 
-              right: 0, 
-              height: '3px', 
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '3px',
               background: `linear-gradient(90deg, ${categoryColor}, transparent)`,
               zIndex: 10,
-              opacity: isRead ? 0.3 : 1
-            }} 
+              opacity: isRead ? 0.3 : 1,
+            }}
           />
 
           {/* Image Container */}
@@ -95,24 +124,21 @@ export default function ArticleCard({ article, index, isRead, onRead }: ArticleC
               flexShrink: 0,
             }}
           >
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.6 }}
-              style={{
-                width: '100%',
-                height: '100%',
-                background: `url('${displayImage}') center/cover no-repeat`,
-              }}
-            />
-            
+            {/* Real <img> — survives Framer Motion style merges unlike CSS background shorthand */}
+            <ArticleImage src={displayImage} fallback={defaultImg} alt={article.title} />
+
+            {/* Gradient overlay */}
             <div
               style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(12,12,12,0.8) 70%, rgba(12,12,12,1) 100%)',
+                background:
+                  'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(12,12,12,0.8) 70%, rgba(12,12,12,1) 100%)',
+                pointerEvents: 'none',
               }}
             />
 
+            {/* Category badge */}
             <div
               style={{
                 position: 'absolute',
@@ -120,7 +146,7 @@ export default function ArticleCard({ article, index, isRead, onRead }: ArticleC
                 left: '16px',
                 display: 'flex',
                 gap: '8px',
-                zIndex: 5
+                zIndex: 5,
               }}
             >
               <span
@@ -137,23 +163,51 @@ export default function ArticleCard({ article, index, isRead, onRead }: ArticleC
                   letterSpacing: '1px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px'
+                  gap: '6px',
                 }}
               >
                 {categoryIcon} {categoryLabel}
               </span>
             </div>
 
-            <div style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', gap: '8px', zIndex: 5 }}>
+            {/* Read indicator */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                display: 'flex',
+                gap: '8px',
+                zIndex: 5,
+              }}
+            >
               {isRead && (
-                <div style={{ padding: '6px', background: 'rgba(0, 255, 136, 0.1)', border: '1px solid var(--neon-green)', color: 'var(--neon-green)', borderRadius: '50%', backdropFilter: 'blur(10px)' }}>
+                <div
+                  style={{
+                    padding: '6px',
+                    background: 'rgba(0, 255, 136, 0.1)',
+                    border: '1px solid var(--neon-green)',
+                    color: 'var(--neon-green)',
+                    borderRadius: '50%',
+                    backdropFilter: 'blur(10px)',
+                  }}
+                >
                   <CheckCircle size={14} />
                 </div>
               )}
             </div>
           </div>
 
-          <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-card)' }}>
+          {/* Card Body */}
+          <div
+            style={{
+              padding: '24px',
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              backgroundColor: 'var(--bg-card)',
+            }}
+          >
             <h3
               style={{
                 fontSize: '1.2rem',
@@ -181,7 +235,7 @@ export default function ArticleCard({ article, index, isRead, onRead }: ArticleC
                 WebkitLineClamp: 3,
                 WebkitBoxOrient: 'vertical',
                 overflow: 'hidden',
-                flex: 1
+                flex: 1,
               }}
             >
               {article.summary}
@@ -197,17 +251,44 @@ export default function ArticleCard({ article, index, isRead, onRead }: ArticleC
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    color: 'var(--text-muted)',
+                    fontSize: '0.75rem',
+                  }}
+                >
                   <Clock size={14} />
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{formatDate(article.published_date)}</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    {formatDate(article.published_date)}
+                  </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    color: 'var(--text-muted)',
+                    fontSize: '0.75rem',
+                  }}
+                >
                   <BookOpen size={14} />
                   <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>5 min read</span>
                 </div>
               </div>
-              
-              <div style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', fontWeight: 600 }}>
+
+              <div
+                style={{
+                  color: 'var(--text-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                }}
+              >
                 READ MORE →
               </div>
             </div>
