@@ -108,9 +108,9 @@ export default function Home() {
               </div>
             </div>
             
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
+            <div className="masonry-grid">
               {toolArticles.map((article: any, i: number) => (
-                <ArticleCard key={article.id} article={article} index={i} isRead={isRead(article.id)} onRead={markAsRead} />
+                <ArticleCard key={article.id} article={article} index={i} isRead={isRead(article.id)} onRead={markAsRead} compact={false} />
               ))}
             </div>
           </section>
@@ -124,11 +124,9 @@ export default function Home() {
               subtitle="Deep dives into the science of AI"
               accentColor="#ff00aa"
             />
-            <div className="scroll-section">
+            <div className="masonry-grid">
               {researchArticles.map((article: any, i: number) => (
-                <div key={article.id} className="scroll-card" style={{ width: '350px' }}>
-                  <ArticleCard article={article} index={i} isRead={isRead(article.id)} onRead={markAsRead} />
-                </div>
+                <ArticleCard key={article.id} article={article} index={i} isRead={isRead(article.id)} onRead={markAsRead} compact={false} />
               ))}
             </div>
           </section>
@@ -143,8 +141,8 @@ export default function Home() {
               accentColor="#b400ff"
             />
             <div className="masonry-grid">
-              {industryArticles.slice(0, 3).map((article, i) => (
-                <ArticleCard key={article.id} article={article} index={i} isRead={isRead(article.id)} onRead={markAsRead} />
+              {industryArticles.slice(0, 3).map((article: any, i: number) => (
+                <ArticleCard key={article.id} article={article} index={i} isRead={isRead(article.id)} onRead={markAsRead} compact={false} />
               ))}
             </div>
           </section>

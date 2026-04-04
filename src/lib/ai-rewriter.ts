@@ -23,6 +23,7 @@ export interface RewrittenArticle {
   category: string;
   hypeScore?: number;
   realityCheck?: string;
+  imagePrompt: string;     // 3-5 words describing a high-quality thematic image
 }
 
 const REWRITE_PROMPT = `You are an expert AI journalist for "AI Pulse", a premium tech news platform.
@@ -64,8 +65,10 @@ OUTPUT FORMAT (respond ONLY with valid JSON, no markdown code blocks):
   "tags": ["tag1", "tag2", "tag3"],
   "category": "ONE of: AI_NEWS, AI_TOOLS, AI_USE_CASES, PROMPT_OF_DAY, AI_TUTORIALS, RESEARCH, PRODUCT_LAUNCH, INDUSTRY, AI_MEMES",
   "hypeScore": 8,
-  "realityCheck": "A short, grounded 1-sentence reality check separating the hype from the actual utility."
-}`;
+  "realityCheck": "A short, grounded 1-sentence reality check separating the hype from the actual utility.",
+  "imagePrompt": "3-5 descriptive keywords for a high-quality thematic image (e.g. 'futuristic neural network server')"
+}
+`;
 
 /**
  * Sleep helper

@@ -83,6 +83,14 @@ export async function processNewsArticles(): Promise<number> {
         continue;
       }
 
+      // Handle missing image — Fallback to Unsplash via the AI-generated prompt
+      let finalImageUrl = raw.imageUrl;
+      if (!finalImageUrl) {
+        const query = encodeURIComponent(rewritten.imagePrompt || 'artificial intelligence tech');
+        // We use a high-quality Unsplash source with the AI-provided keywords as a search query
+        finalImageUrl = `https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop&sig=${Math.random()}`;
+      }
+
       // Store in Supabase
       const { error } = await supabase.from('articles').insert({
         slug: rewritten.slug,
@@ -92,7 +100,7 @@ export async function processNewsArticles(): Promise<number> {
         full_rewritten_content: rewritten.fullContent,
         original_url: raw.url,
         source_name: raw.source,
-        image_url: raw.imageUrl,
+        image_url: finalImageUrl,
         category: rewritten.category || 'AI_NEWS',
         tags: rewritten.tags || [],
         hype_score: rewritten.hypeScore || 5,
