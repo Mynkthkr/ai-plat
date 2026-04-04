@@ -49,271 +49,84 @@ export default function Home() {
     return articles.filter((a) => a.category === activeTab);
   }, [articles, activeTab]);
 
-  // Get articles by category for horizontal sections
   const getByCategory = (cat: string) => articles.filter((a) => a.category === cat);
 
-  // Highlight sections for the non-ALL view
-  const promptArticles = getByCategory('PROMPT_OF_DAY');
-  const memeArticles = getByCategory('AI_MEMES');
-  const tutorialArticles = getByCategory('AI_TUTORIALS');
-  const toolArticles = getByCategory('AI_TOOLS');
-  const useCaseArticles = getByCategory('AI_USE_CASES');
-
-  const featuredArticle = articles[0];
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    if (hours < 1) return 'Just now';
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
-  };
+  // Highlights/Section filtering
+  const researchArticles = getByCategory('RESEARCH');
+  const industryArticles = getByCategory('INDUSTRY');
+  const toolArticles = getByCategory('AI_TOOLS').slice(0, 4);
+  const latestArticles = articles.slice(0, 6);
 
   return (
-    <div style={{ position: 'relative', zIndex: 1 }}>
+    <div style={{ position: 'relative', zIndex: 1, backgroundColor: 'var(--bg-void)' }}>
       <Navbar />
       <HeroSection />
 
-      <main className="container-main" style={{ paddingTop: '32px' }} id="feed">
-        {/* Newsletter */}
-        <NewsletterSubscribe />
-
-        {/* Tech Roast */}
-        <div style={{ marginBottom: '64px' }}>
-          <TechRoastWidget />
+      <main className="container-main" style={{ paddingTop: '48px' }} id="feed">
+        {/* Newsletter - Compact & Accessible */}
+        <div style={{ marginBottom: '80px' }}>
+          <NewsletterSubscribe />
         </div>
 
         {/* ═══════════════════════════════════════
-             FEATURED TOP STORY
+             LATEST INTELLIGENCE (Main Feed)
              ═══════════════════════════════════════ */}
-        {featuredArticle && loaded && (
-          <section style={{ marginBottom: '64px' }}>
-            <SectionHeader
-              title="Top Story"
-              subtitle="Today's most impactful AI development"
-              accentColor="var(--neon-pink)"
-            />
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ type: 'spring', stiffness: 60 }}
-            >
-              <Link
-                href={`/article/${featuredArticle.id}`}
-                onClick={() => markAsRead(featuredArticle.id)}
-                style={{ textDecoration: 'none', display: 'block' }}
-              >
-                <div
-                  className="glass-card card-hover-glow"
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: featuredArticle.image_url ? '1fr 1fr' : '1fr',
-                    overflow: 'hidden',
-                    cursor: 'pointer',
-                    opacity: isRead(featuredArticle.id) ? 0.55 : 1,
-                    transition: 'opacity 300ms ease',
-                  }}
-                >
-                  {featuredArticle.image_url && (
-                    <div
-                      style={{
-                        position: 'relative',
-                        minHeight: '280px',
-                        background: `url(${featuredArticle.image_url}) center/cover`,
-                      }}
-                    >
-                      <div
-                        style={{
-                          position: 'absolute',
-                          inset: 0,
-                          background: 'linear-gradient(90deg, transparent 60%, rgba(18, 18, 26, 0.8))',
-                        }}
-                      />
-                    </div>
-                  )}
-                  <div style={{ padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                      <span className="badge badge-pink">🔥 Featured</span>
-                      {isRead(featuredArticle.id) && (
-                        <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--neon-green)', fontFamily: "'JetBrains Mono', monospace" }}>
-                          ✓ Read
-                        </span>
-                      )}
-                    </div>
-                    <h2 style={{ fontSize: 'clamp(1.25rem, 2.5vw, 1.6rem)', fontWeight: 700, color: isRead(featuredArticle.id) ? 'var(--text-secondary)' : 'var(--text-glow)', marginBottom: '12px', lineHeight: 1.3 }}>
-                      {featuredArticle.title}
-                    </h2>
-                    <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.65, marginBottom: '20px' }}>
-                      {featuredArticle.summary}
-                    </p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: "'JetBrains Mono', monospace" }}>
-                        {featuredArticle.source_name}
-                      </span>
-                      <span style={{ color: 'var(--text-muted)' }}>·</span>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--neon-cyan)', fontFamily: "'JetBrains Mono', monospace", display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <BookOpen size={13} /> Read full article
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
-          </section>
-        )}
+        <section style={{ marginBottom: '100px' }}>
+          <SectionHeader
+            title="Latest Intelligence"
+            subtitle="The most recent breakthroughs and updates"
+            accentColor="var(--neon-cyan)"
+          />
+          <div className="masonry-grid">
+            {latestArticles.map((article: any, i: number) => (
+              <ArticleCard
+                key={article.id}
+                article={article}
+                index={i}
+                isRead={isRead(article.id)}
+                onRead={markAsRead}
+                compact={false} // Ensure full view with image
+              />
+            ))}
+          </div>
+        </section>
 
-        {/* ═══════════════════════════════════════
-             HORIZONTAL SPOTLIGHT SECTIONS
-             ═══════════════════════════════════════ */}
+        {/* Tech Roast - Interactive Break */}
+        <div style={{ marginBottom: '100px', padding: '40px', borderRadius: 'var(--radius-xl)', background: 'linear-gradient(to right, rgba(255, 60, 100, 0.05), transparent)' }}>
+          <TechRoastWidget />
+        </div>
 
-        {/* ✨ PROMPT OF THE DAY — Spotlight Section */}
-        {loaded && promptArticles.length > 0 && (
-          <section style={{ marginBottom: '56px' }}>
-            <SectionHeader
-              title="✨ Prompt of the Day"
-              subtitle="Daily curated AI prompts to supercharge your workflow"
-              accentColor="#b400ff"
-            />
-            <div className="scroll-section">
-              {promptArticles.map((article) => (
-                <div key={article.id} className="scroll-card">
-                  <Link
-                    href={`/article/${article.id}`}
-                    onClick={() => markAsRead(article.id)}
-                    style={{ textDecoration: 'none', display: 'block' }}
-                  >
-                    <div
-                      className="glass-card card-hover-glow"
-                      style={{
-                        padding: '24px',
-                        height: '100%',
-                        cursor: 'pointer',
-                        opacity: isRead(article.id) ? 0.6 : 1,
-                        borderTop: '3px solid #b400ff40',
-                      }}
-                    >
-                      <div style={{ fontSize: '2rem', marginBottom: '12px' }}>✨</div>
-                      <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-glow)', marginBottom: '8px', lineHeight: 1.35 }}>
-                        {article.title}
-                      </h3>
-                      <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '16px', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                        {article.summary}
-                      </p>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: "'JetBrains Mono', monospace", display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <Clock size={11} /> {formatDate(article.published_date)}
-                        </span>
-                        <span style={{ fontSize: '0.7rem', color: '#b400ff', fontFamily: "'JetBrains Mono', monospace", display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          Try it <ArrowRight size={12} />
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* 🛠️ AI TOOLS — Horizontal Scroll */}
+        {/* 🛠️ AI TOOLS SPOTLIGHT */}
         {loaded && toolArticles.length > 0 && (
-          <section style={{ marginBottom: '56px' }}>
-            <SectionHeader
-              title="🛠️ New AI Tools"
-              subtitle="Latest launches and updates"
-              accentColor="#00ff88"
-            />
-            <div className="scroll-section">
-              {toolArticles.map((article, i) => (
-                <div key={article.id} className="scroll-card">
-                  <ArticleCard article={article} index={i} isRead={isRead(article.id)} onRead={markAsRead} />
-                </div>
+          <section style={{ marginBottom: '100px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+              <div>
+                <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-glow)', marginBottom: '8px' }}>
+                  🛠️ New AI Tools
+                </h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Latest launches to supercharge your workflow</p>
+              </div>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
+              {toolArticles.map((article: any, i: number) => (
+                <ArticleCard key={article.id} article={article} index={i} isRead={isRead(article.id)} onRead={markAsRead} />
               ))}
             </div>
           </section>
         )}
 
-        {/* 😂 AI MEMES — Highlight Cards */}
-        {loaded && memeArticles.length > 0 && (
-          <section style={{ marginBottom: '56px' }}>
+        {/* 🔬 RESEARCH & INNOVATION */}
+        {loaded && researchArticles.length > 0 && (
+          <section style={{ marginBottom: '100px' }}>
             <SectionHeader
-              title="😂 AI Memes"
-              subtitle="Because even AI needs to laugh"
-              accentColor="#ff6b6b"
-            />
-            <div className="scroll-section">
-              {memeArticles.map((article) => (
-                <div key={article.id} className="scroll-card">
-                  <Link
-                    href={`/article/${article.id}`}
-                    onClick={() => markAsRead(article.id)}
-                    style={{ textDecoration: 'none', display: 'block' }}
-                  >
-                    <div
-                      className="glass-card card-hover-glow"
-                      style={{
-                        padding: '24px',
-                        height: '100%',
-                        cursor: 'pointer',
-                        opacity: isRead(article.id) ? 0.6 : 1,
-                        background: 'linear-gradient(135deg, rgba(255, 107, 107, 0.06), rgba(180, 0, 255, 0.04))',
-                        borderTop: '3px solid #ff6b6b40',
-                      }}
-                    >
-                      <div style={{ fontSize: '2rem', marginBottom: '12px' }}>😂</div>
-                      <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-glow)', marginBottom: '8px', lineHeight: 1.35 }}>
-                        {article.title}
-                      </h3>
-                      <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '16px', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                        {article.summary}
-                      </p>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: "'JetBrains Mono', monospace", display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <Clock size={11} /> {formatDate(article.published_date)}
-                        </span>
-                        <span style={{ fontSize: '0.7rem', color: '#ff6b6b', fontFamily: "'JetBrains Mono', monospace", display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          Read <ArrowRight size={12} />
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* 💡 AI USE CASES — Horizontal Scroll */}
-        {loaded && useCaseArticles.length > 0 && (
-          <section style={{ marginBottom: '56px' }}>
-            <SectionHeader
-              title="💡 AI Use Cases"
-              subtitle="What people are building with AI"
-              accentColor="#ffaa00"
-            />
-            <div className="scroll-section">
-              {useCaseArticles.map((article, i) => (
-                <div key={article.id} className="scroll-card">
-                  <ArticleCard article={article} index={i} isRead={isRead(article.id)} onRead={markAsRead} />
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* 📚 AI TUTORIALS — Horizontal Scroll */}
-        {loaded && tutorialArticles.length > 0 && (
-          <section style={{ marginBottom: '56px' }}>
-            <SectionHeader
-              title="📚 Tutorial Snippets"
-              subtitle="Quick AI how-to guides and code snippets"
+              title="🔬 Research & Benchmarks"
+              subtitle="Deep dives into the science of AI"
               accentColor="#ff00aa"
             />
             <div className="scroll-section">
-              {tutorialArticles.map((article, i) => (
-                <div key={article.id} className="scroll-card">
+              {researchArticles.map((article: any, i: number) => (
+                <div key={article.id} className="scroll-card" style={{ width: '350px' }}>
                   <ArticleCard article={article} index={i} isRead={isRead(article.id)} onRead={markAsRead} />
                 </div>
               ))}
@@ -321,26 +134,38 @@ export default function Home() {
           </section>
         )}
 
+        {/* 🏭 INDUSTRY & STRATEGY */}
+        {loaded && industryArticles.length > 0 && (
+          <section style={{ marginBottom: '100px' }}>
+            <SectionHeader
+              title="🏭 Industry & Economy"
+              subtitle="How companies are adapting to the AI shift"
+              accentColor="#b400ff"
+            />
+            <div className="masonry-grid">
+              {industryArticles.slice(0, 3).map((article, i) => (
+                <ArticleCard key={article.id} article={article} index={i} isRead={isRead(article.id)} onRead={markAsRead} />
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* ═══════════════════════════════════════
-             TABBED ALL-CONTENT SECTION
+             EXPLORE BY CATEGORY (Filtered View)
              ═══════════════════════════════════════ */}
         {loaded && (
-          <section style={{ marginBottom: '64px' }}>
-            <SectionHeader
-              title="Browse All"
-              subtitle="Filter by category"
-              accentColor="var(--neon-cyan)"
-            />
+          <section style={{ marginBottom: '100px', paddingTop: '60px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+            <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+              <h2 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-glow)', marginBottom: '12px' }}>Explore Everything</h2>
+              <p style={{ color: 'var(--text-secondary)' }}>Deep dive into specific domains</p>
+            </div>
 
             {/* Tab bar */}
-            <div className="category-tabs" style={{ marginBottom: '28px' }}>
+            <div className="category-tabs" style={{ marginBottom: '40px', justifyContent: 'center' }}>
               {CONTENT_SECTIONS.map((section) => {
                 const count = section.key === 'ALL'
                   ? articles.length
                   : articles.filter((a) => a.category === section.key).length;
-
-                // Always show tabs, even if count is 0
-                // if (count === 0 && section.key !== 'ALL') return null;
 
                 return (
                   <button
@@ -394,16 +219,8 @@ export default function Home() {
             </AnimatePresence>
 
             {filteredArticles.length === 0 && (
-              <div
-                style={{
-                  textAlign: 'center',
-                  padding: '60px 20px',
-                  color: 'var(--text-muted)',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: '0.85rem',
-                }}
-              >
-                No articles in this category yet. Check back soon!
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)', fontFamily: "'JetBrains Mono', monospace", fontSize: '0.85rem' }}>
+                No articles found here yet.
               </div>
             )}
           </section>

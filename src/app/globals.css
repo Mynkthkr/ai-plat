@@ -18,14 +18,14 @@
   --bg-void: #000000;
   --bg-deep: #050505;
   --bg-surface: #0a0a0a;
-  --bg-card: #0f0f0f;
-  --bg-elevated: #1a1a1a;
-  --bg-hover: #222222;
+  --bg-card: #0c0c0c;
+  --bg-elevated: #141414;
+  --bg-hover: #1c1c1c;
   
   /* Text */
-  --text-primary: #ededed;
+  --text-primary: #f4f4f5;
   --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
+  --text-muted: #52525b;
   --text-glow: #ffffff;
   
   /* Subtle Shadow Effects instead of Neon Glows */

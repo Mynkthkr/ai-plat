@@ -52,9 +52,11 @@ export default function SectionHeader({ title, subtitle, accentColor = 'var(--ne
         {subtitle && (
           <p
             style={{
-              fontSize: '0.9rem',
+              fontSize: '1rem',
               color: 'var(--text-secondary)',
-              marginLeft: '16px',
+              marginLeft: '20px',
+              maxWidth: '600px',
+              lineHeight: '1.6',
             }}
           >
             {subtitle}
