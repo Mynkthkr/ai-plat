@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Clock, BookOpen, CheckCircle } from 'lucide-react';
 import { ArticleDisplay, categoryColors, categoryLabels, categoryIcons } from '@/lib/types';
+import { getSmartImage } from '@/lib/image-utils';
 import { useState, useEffect } from 'react';
 
 interface ArticleCardProps {
@@ -78,18 +79,9 @@ export default function ArticleCard({ article, index, isRead, onRead }: ArticleC
 
   const articleUrl = `/article/${article.id}`;
 
-  // Safe Fallback Images
-  const fallbacks = [
-    'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop',
-  ];
-  // Deterministic fallback based on id length
-  const defaultImg = fallbacks[(article.id.length || 0) % fallbacks.length];
-
-  const displayImage =
-    article.image_url && article.image_url !== 'null' ? article.image_url : defaultImg;
+  // Smart fallback: keyword + category aware image selection
+  const displayImage = getSmartImage(article);
+  const fallbackImg = 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=800&auto=format&fit=crop';
 
   return (
     <motion.div
@@ -142,7 +134,7 @@ export default function ArticleCard({ article, index, isRead, onRead }: ArticleC
             }}
           >
             {/* Real <img> — survives Framer Motion style merges unlike CSS background shorthand */}
-            <ArticleImage src={displayImage} fallback={defaultImg} alt={article.title} />
+            <ArticleImage src={displayImage} fallback={fallbackImg} alt={article.title} />
 
             {/* Gradient overlay */}
             <div

@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import { sampleArticles } from '@/lib/seed-data';
 import { ArticleDisplay, categoryColors, categoryLabels, categoryIcons } from '@/lib/types';
 import { useReadArticles } from '@/hooks/useReadArticles';
+import { getSmartImage } from '@/lib/image-utils';
 
 export default function ArticlePage() {
   const params = useParams();
@@ -184,6 +185,7 @@ export default function ArticlePage() {
   const categoryLabel = categoryLabels[article.category] || article.category;
   const categoryIcon = categoryIcons?.[article.category] || '📰';
   const fullContent = article.full_rewritten_content || article.rewritten_content;
+  const displayImage = getSmartImage(article);
 
   return (
     <div style={{ position: 'relative', zIndex: 1 }}>
@@ -191,7 +193,7 @@ export default function ArticlePage() {
 
       <article style={{ paddingTop: '100px', paddingBottom: '60px' }}>
         {/* Hero image */}
-        {article.image_url && (
+        {displayImage && (
           <div
             style={{
               position: 'relative',
@@ -204,7 +206,7 @@ export default function ArticlePage() {
               style={{
                 width: '100%',
                 height: '420px',
-                background: `url(${article.image_url}) center/cover`,
+                background: `url(${displayImage}) center/cover`,
               }}
             />
             <div
@@ -221,7 +223,7 @@ export default function ArticlePage() {
         <div
           style={{
             maxWidth: '780px',
-            margin: article.image_url ? '-120px auto 0' : '0 auto',
+            margin: displayImage ? '-120px auto 0' : '0 auto',
             padding: '0 24px',
             position: 'relative',
             zIndex: 2,

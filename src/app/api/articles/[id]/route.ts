@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
 import { sampleArticles } from '@/lib/seed-data';
+import { getSmartImage } from '@/lib/image-utils';
+
+function ensureImage<T extends { id: string; title?: string | null; category?: string | null; image_url?: string | null }>(article: T): T {
+  return { ...article, image_url: getSmartImage(article) };
+}
 
 export async function GET(
   _request: Request,
@@ -20,7 +25,7 @@ export async function GET(
         .single();
 
       if (article) {
-        return NextResponse.json({ article });
+        return NextResponse.json({ article: ensureImage(article) });
       }
 
       // Try by slug
@@ -31,14 +36,14 @@ export async function GET(
         .single();
 
       if (bySlug) {
-        return NextResponse.json({ article: bySlug });
+        return NextResponse.json({ article: ensureImage(bySlug) });
       }
     }
 
     // Fallback: demo data
     const found = sampleArticles.find((a) => a.id === id || a.slug === id);
     if (found) {
-      return NextResponse.json({ article: found });
+      return NextResponse.json({ article: ensureImage(found) });
     }
 
     return NextResponse.json({ error: 'Article not found' }, { status: 404 });

@@ -1,22 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
 import { sampleArticles } from '@/lib/seed-data';
+import { getSmartImage } from '@/lib/image-utils';
 
-// High-quality AI-themed fallback images (Unsplash, stable URLs)
-const FALLBACK_IMAGES = [
-  'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=800&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=800&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop',
-];
-
-function ensureImage<T extends { id: string; image_url?: string | null }>(article: T): T {
-  if (article.image_url && article.image_url !== 'null') return article;
-  // Deterministic fallback based on article id
-  const idx = article.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % FALLBACK_IMAGES.length;
-  return { ...article, image_url: FALLBACK_IMAGES[idx] };
+function ensureImage<T extends { id: string; title?: string | null; category?: string | null; image_url?: string | null }>(article: T): T {
+  return { ...article, image_url: getSmartImage(article) };
 }
 
 export async function GET() {
@@ -24,9 +12,8 @@ export async function GET() {
     const supabase = getSupabase();
 
     if (!supabase) {
-      // Demo mode — return seed data with freshness tags
       return NextResponse.json({
-        articles: tagFreshness(sampleArticles),
+        articles: tagFreshness(sampleArticles.map(ensureImage)),
         source: 'demo',
       });
     }
@@ -44,7 +31,7 @@ export async function GET() {
     if (error) {
       console.error('Supabase fetch error:', error);
       return NextResponse.json({
-        articles: tagFreshness(sampleArticles),
+        articles: tagFreshness(sampleArticles.map(ensureImage)),
         source: 'demo-fallback',
       });
     }
@@ -56,15 +43,14 @@ export async function GET() {
       });
     }
 
-    // Final fallback: demo seed data
     return NextResponse.json({
-      articles: tagFreshness(sampleArticles),
+      articles: tagFreshness(sampleArticles.map(ensureImage)),
       source: 'demo-empty',
     });
   } catch (error) {
     console.error('Articles API error:', error);
     return NextResponse.json({
-      articles: tagFreshness(sampleArticles),
+      articles: tagFreshness(sampleArticles.map(ensureImage)),
       source: 'demo-error',
     });
   }
