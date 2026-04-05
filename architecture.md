@@ -19,12 +19,12 @@ graph TD
         UI_Sub[Newsletter Subscribe]:::frontend
     end
 
-    subgraph API [⚙️ Next.js /api Routes]
-        API_Articles[/api/articles]:::api
-        API_Roast[/api/roast-stack]:::api
-        API_Dog[/api/dog-explain]:::api
-        API_Sub[/api/subscribe]:::api
-        API_Cron[/api/cron/run]:::api
+    subgraph API [⚙️ Next.js API Routes]
+        API_Articles["/api/articles"]:::api
+        API_Roast["/api/roast-stack"]:::api
+        API_Dog["/api/dog-explain"]:::api
+        API_Sub["/api/subscribe"]:::api
+        API_Cron["/api/cron/run"]:::api
     end
 
     subgraph Background_Workers [⏱ Background Jobs]
