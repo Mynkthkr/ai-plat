@@ -69,9 +69,9 @@ export default function Home() {
       <Navbar />
       <HeroSection />
 
-      <main className="container-main" style={{ paddingTop: '48px' }} id="feed">
+      <main className="container-main" style={{ paddingTop: '0px' }} id="feed">
         {/* Newsletter - Compact & Accessible */}
-        <div style={{ marginBottom: '80px' }}>
+        <div style={{ marginTop: '-40px', marginBottom: '80px', position: 'relative', zIndex: 10 }}>
           <NewsletterSubscribe />
         </div>
 
