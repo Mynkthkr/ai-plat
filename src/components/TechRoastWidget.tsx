@@ -39,14 +39,14 @@ export default function TechRoastWidget() {
   };
 
   return (
-    <div className="card-gradient" style={{ padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,107,107,0.3)', position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', top: '-10px', right: '-10px', opacity: 0.1 }}>
-        <Flame size={120} color="#ff6b6b" />
+    <div className="card-gradient" style={{ padding: '24px', borderRadius: '16px', border: '1px solid rgba(0, 240, 255, 0.12)', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', top: '-10px', right: '-10px', opacity: 0.05 }}>
+        <Flame size={120} color="var(--neon-cyan)" />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', position: 'relative', zIndex: 1 }}>
-        <Flame size={20} color="#ff6b6b" />
-        <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#ff6b6b', fontWeight: 700 }}>Roast My Tech Stack</h3>
+        <Flame size={20} color="var(--neon-cyan)" />
+        <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-glow)', fontWeight: 700 }}>Roast My Tech Stack</h3>
       </div>
       
       <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '20px', lineHeight: 1.5, position: 'relative', zIndex: 1 }}>
@@ -76,8 +76,8 @@ export default function TechRoastWidget() {
           type="submit"
           disabled={loading || !stack.trim()}
           style={{
-            background: 'linear-gradient(135deg, #ff6b6b, #b400ff)',
-            color: '#fff',
+            background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))',
+            color: '#050508',
             border: 'none',
             borderRadius: 'var(--radius-sm)',
             padding: '0 16px',
@@ -105,12 +105,12 @@ export default function TechRoastWidget() {
               style={{
                 marginTop: '16px',
                 padding: '16px',
-                background: 'rgba(255, 107, 107, 0.1)',
-                borderLeft: '2px solid #ff6b6b',
+                background: 'rgba(10, 10, 15, 0.6)',
+                borderLeft: '2px solid var(--neon-cyan)',
                 borderRadius: '0 8px 8px 0',
                 fontSize: '0.85rem',
                 lineHeight: 1.6,
-                color: 'var(--text-secondary)',
+                color: 'var(--text-primary)',
               }}
               dangerouslySetInnerHTML={{ __html: formatRoast(roast) }}
             />

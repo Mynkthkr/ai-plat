@@ -22,6 +22,7 @@ export default function Home() {
   // Start with empty array — no seed data flash. Real articles load from DB.
   const [articles, setArticles] = useState<typeof sampleArticles>([]);
   const [dbLoaded, setDbLoaded] = useState(false);
+  const [visibleExploreCount, setVisibleExploreCount] = useState(7);
 
   useEffect(() => {
     async function fetchLiveArticles() {
@@ -133,7 +134,7 @@ export default function Home() {
         </section>
 
         {/* Tech Roast - Interactive Break */}
-        <div style={{ marginBottom: '100px', padding: '40px', borderRadius: 'var(--radius-xl)', background: 'linear-gradient(to right, rgba(255, 60, 100, 0.05), transparent)' }}>
+        <div style={{ marginBottom: '100px', padding: '40px', borderRadius: 'var(--radius-xl)', background: 'linear-gradient(to right, rgba(0, 240, 255, 0.03), rgba(180, 0, 255, 0.03))' }}>
           <TechRoastWidget />
         </div>
 
@@ -210,7 +211,10 @@ export default function Home() {
                   <button
                     key={section.key}
                     className={`category-tab ${activeTab === section.key ? 'active' : ''}`}
-                    onClick={() => setActiveTab(section.key)}
+                    onClick={() => {
+                      setActiveTab(section.key);
+                      setVisibleExploreCount(7);
+                    }}
                     style={
                       activeTab === section.key
                         ? { borderColor: section.color, color: section.color, background: `${section.color}12` }
@@ -245,7 +249,7 @@ export default function Home() {
                 transition={{ duration: 0.2 }}
                 className="masonry-grid"
               >
-                {filteredArticles.map((article, i) => (
+                {filteredArticles.slice(0, visibleExploreCount).map((article, i) => (
                   <ArticleCard
                     key={article.id}
                     article={article}
@@ -256,6 +260,37 @@ export default function Home() {
                 ))}
               </motion.div>
             </AnimatePresence>
+
+            {filteredArticles.length > visibleExploreCount && (
+              <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                <button
+                  onClick={() => setVisibleExploreCount(prev => prev + 6)}
+                  className="btn-outline"
+                  style={{
+                    padding: '12px 32px',
+                    borderRadius: 'var(--radius-full)',
+                    background: 'transparent',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    color: 'var(--text-primary)',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    letterSpacing: '1px',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+                  }}
+                >
+                  Show More
+                </button>
+              </div>
+            )}
 
             {filteredArticles.length === 0 && (
               <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)', fontFamily: "'JetBrains Mono', monospace", fontSize: '0.85rem' }}>
