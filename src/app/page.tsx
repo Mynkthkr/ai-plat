@@ -11,8 +11,16 @@ import TechRoastWidget from '@/components/TechRoastWidget';
 import Footer from '@/components/Footer';
 import { sampleArticles } from '@/lib/seed-data';
 import { useReadArticles } from '@/hooks/useReadArticles';
-import { CONTENT_SECTIONS } from '@/lib/types';
+import { CONTENT_SECTIONS, type ContentCategory } from '@/lib/types';
 import { BookOpen, ArrowRight, Clock } from 'lucide-react';
+
+const HELPFUL_CATEGORIES: ContentCategory[] = [
+  'AI_TUTORIALS',
+  'PROMPT_OF_DAY',
+  'AI_TOOLS',
+  'AI_USE_CASES',
+  'PRODUCT_LAUNCH',
+];
 
 export default function Home() {
   const { markAsRead, isRead, loaded: hooksLoaded } = useReadArticles();
@@ -66,9 +74,7 @@ export default function Home() {
   const helpfulArticles = useMemo(
     () =>
       articles
-        .filter((a) =>
-          ['AI_TUTORIALS', 'PROMPT_OF_DAY', 'AI_TOOLS', 'AI_USE_CASES', 'PRODUCT_LAUNCH'].includes(a.category)
-        )
+        .filter((a) => HELPFUL_CATEGORIES.includes(a.category as ContentCategory))
         .slice(0, 4),
     [articles]
   );
