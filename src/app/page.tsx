@@ -127,7 +127,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="masonry-grid">
-              {latestArticles.map((article: any, i: number) => (
+              {latestArticles.map((article, i: number) => (
                 <ArticleCard
                   key={article.id}
                   article={article}
@@ -208,7 +208,7 @@ export default function Home() {
             </div>
             
             <div className="masonry-grid">
-              {toolArticles.map((article: any, i: number) => (
+              {toolArticles.map((article, i: number) => (
                 <ArticleCard key={article.id} article={article} index={i} isRead={isRead(article.id)} onRead={markAsRead} compact={false} />
               ))}
             </div>
@@ -224,7 +224,7 @@ export default function Home() {
               accentColor="#ff00aa"
             />
             <div className="masonry-grid">
-              {researchArticles.map((article: any, i: number) => (
+              {researchArticles.map((article, i: number) => (
                 <ArticleCard key={article.id} article={article} index={i} isRead={isRead(article.id)} onRead={markAsRead} compact={false} />
               ))}
             </div>
@@ -240,7 +240,7 @@ export default function Home() {
               accentColor="#b400ff"
             />
             <div className="masonry-grid">
-              {industryArticles.slice(0, 3).map((article: any, i: number) => (
+              {industryArticles.slice(0, 3).map((article, i: number) => (
                 <ArticleCard key={article.id} article={article} index={i} isRead={isRead(article.id)} onRead={markAsRead} compact={false} />
               ))}
             </div>
