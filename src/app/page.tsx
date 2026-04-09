@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
@@ -12,8 +11,16 @@ import TechRoastWidget from '@/components/TechRoastWidget';
 import Footer from '@/components/Footer';
 import { sampleArticles } from '@/lib/seed-data';
 import { useReadArticles } from '@/hooks/useReadArticles';
-import { CONTENT_SECTIONS, categoryColors, categoryIcons } from '@/lib/types';
+import { CONTENT_SECTIONS, type ContentCategory } from '@/lib/types';
 import { BookOpen, ArrowRight, Clock } from 'lucide-react';
+
+const HELPFUL_CATEGORIES: ContentCategory[] = [
+  'AI_TUTORIALS',
+  'PROMPT_OF_DAY',
+  'AI_TOOLS',
+  'AI_USE_CASES',
+  'PRODUCT_LAUNCH',
+];
 
 export default function Home() {
   const { markAsRead, isRead, loaded: hooksLoaded } = useReadArticles();
@@ -64,6 +71,13 @@ export default function Home() {
   const industryArticles = getByCategory('INDUSTRY');
   const toolArticles = getByCategory('AI_TOOLS').slice(0, 4);
   const latestArticles = articles.slice(0, 6);
+  const helpfulArticles = useMemo(
+    () =>
+      articles
+        .filter((a) => HELPFUL_CATEGORIES.includes(a.category as ContentCategory))
+        .slice(0, 4),
+    [articles]
+  );
 
   return (
     <div style={{ position: 'relative', zIndex: 1, backgroundColor: 'var(--bg-void)' }}>
@@ -119,7 +133,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="masonry-grid">
-              {latestArticles.map((article: any, i: number) => (
+              {latestArticles.map((article, i: number) => (
                 <ArticleCard
                   key={article.id}
                   article={article}
@@ -132,6 +146,55 @@ export default function Home() {
             </div>
           )}
         </section>
+
+        {/* 🧠 LEARN + APPLY AI */}
+        {loaded && helpfulArticles.length > 0 && (
+          <section style={{ marginBottom: '100px' }}>
+            <SectionHeader
+              title="🧠 Learn AI Faster"
+              subtitle="What’s new in AI, what to learn next, and practical tips to use the latest tools"
+              accentColor="#00ff88"
+            />
+
+            <div
+              className="glass-card"
+              style={{
+                padding: '24px',
+                marginBottom: '28px',
+                border: '1px solid rgba(0, 255, 136, 0.22)',
+                background: 'linear-gradient(120deg, rgba(0, 255, 136, 0.06), rgba(0, 240, 255, 0.04))',
+              }}
+            >
+              <div style={{ display: 'grid', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-secondary)' }}>
+                  <Clock size={16} color="var(--neon-cyan)" />
+                  Track latest model launches and important AI updates.
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-secondary)' }}>
+                  <BookOpen size={16} color="var(--neon-green)" />
+                  Find beginner-friendly tutorials and practical learning paths.
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-secondary)' }}>
+                  <ArrowRight size={16} color="var(--accent-magenta)" />
+                  Discover free AI model options and smart editor workflow tips.
+                </div>
+              </div>
+            </div>
+
+            <div className="masonry-grid">
+              {helpfulArticles.map((article, i: number) => (
+                <ArticleCard
+                  key={article.id}
+                  article={article}
+                  index={i}
+                  isRead={isRead(article.id)}
+                  onRead={markAsRead}
+                  compact={false}
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Tech Roast - Interactive Break */}
         <div style={{ marginBottom: '100px', padding: '40px', borderRadius: 'var(--radius-xl)', background: 'linear-gradient(to right, rgba(0, 240, 255, 0.03), rgba(180, 0, 255, 0.03))' }}>
@@ -151,7 +214,7 @@ export default function Home() {
             </div>
             
             <div className="masonry-grid">
-              {toolArticles.map((article: any, i: number) => (
+              {toolArticles.map((article, i: number) => (
                 <ArticleCard key={article.id} article={article} index={i} isRead={isRead(article.id)} onRead={markAsRead} compact={false} />
               ))}
             </div>
@@ -167,7 +230,7 @@ export default function Home() {
               accentColor="#ff00aa"
             />
             <div className="masonry-grid">
-              {researchArticles.map((article: any, i: number) => (
+              {researchArticles.map((article, i: number) => (
                 <ArticleCard key={article.id} article={article} index={i} isRead={isRead(article.id)} onRead={markAsRead} compact={false} />
               ))}
             </div>
@@ -183,7 +246,7 @@ export default function Home() {
               accentColor="#b400ff"
             />
             <div className="masonry-grid">
-              {industryArticles.slice(0, 3).map((article: any, i: number) => (
+              {industryArticles.slice(0, 3).map((article, i: number) => (
                 <ArticleCard key={article.id} article={article} index={i} isRead={isRead(article.id)} onRead={markAsRead} compact={false} />
               ))}
             </div>
