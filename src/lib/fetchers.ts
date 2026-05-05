@@ -49,6 +49,18 @@ const RSS_FEEDS = [
     url: 'https://news.google.com/rss/search?q=ChatGPT+OR+Gemini+OR+Claude+AI+updates&hl=en-US&gl=US&ceid=US:en',
     name: 'LLM Major Updates',
   },
+  {
+    url: 'https://news.google.com/rss/search?q=how+to+learn+AI+for+beginners+OR+AI+roadmap+guide&hl=en-US&gl=US&ceid=US:en',
+    name: 'AI Learning Guides',
+  },
+  {
+    url: 'https://news.google.com/rss/search?q=free+AI+models+OR+open+source+LLM+release+OR+free+tier+AI+tool&hl=en-US&gl=US&ceid=US:en',
+    name: 'Free AI Models & Tools',
+  },
+  {
+    url: 'https://news.google.com/rss/search?q=Claude+Code+OR+AI+coding+editor+OR+developer+AI+workflow+tips&hl=en-US&gl=US&ceid=US:en',
+    name: 'AI Coding Workflow Tips',
+  },
 ];
 
 /**
